@@ -1,0 +1,7 @@
+---
+- name: Import tasks to install cluster
+  ansible.builtin.include_tasks: install.yaml
+  with_items: "{{ openshift_clusters }}"
+  when: openshift_clusters is defined
+  loop_control:
+    loop_var: current_cluster

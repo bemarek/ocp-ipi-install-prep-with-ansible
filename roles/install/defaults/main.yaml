@@ -1,0 +1,3 @@
+---
+bastion_openshift_base_dir: "{{ base_dir }}"
+bastion_cluster_base_dir: "{{ bastion_openshift_base_dir }}/{{ current_cluster['name'] }}"

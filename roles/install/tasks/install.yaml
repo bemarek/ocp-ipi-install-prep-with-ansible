@@ -1,0 +1,79 @@
+---
+- name: Show values for cluster {{ current_cluster['name'] }}
+  ansible.builtin.debug:
+    msg:
+      - "{{ current_cluster }}"
+
+- name: Create cluster base directory for {{ current_cluster['name'] }}
+  ansible.builtin.file:
+    path: "{{ bastion_cluster_base_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Create directory structure in {{ base_dir }} for {{ current_cluster['name'] }}
+  ansible.builtin.file:
+    state: directory
+    path: "{{ item }}"
+    mode: "0755"
+  with_items:
+    - "{{ bastion_cluster_base_dir }}/auth"
+    - "{{ bastion_cluster_base_dir }}/install"
+    - "{{ bastion_cluster_base_dir }}/backup"
+
+- name: Generate ssh keys for {{ current_cluster['name'] }}
+  community.crypto.openssh_keypair:
+    path: "{{ bastion_cluster_base_dir }}/auth/ssh"
+    size: 4096
+    type: rsa
+  register: __ssh_keypair
+
+- name: Deploy the openshift install configuration for {{ current_cluster['name'] }}
+  ansible.builtin.template:
+    src: install-config.yaml.j2
+    dest: "{{ bastion_cluster_base_dir }}/{{ item }}/install-config.yaml"
+    mode: "0644"
+  with_items:
+    - install
+    - backup
+
+- name: Install cluster {{ current_cluster['name'] }}
+  ansible.builtin.shell:
+    cmd: "/usr/local/bin/openshift-install create cluster --log-level=debug"
+    chdir: "{{ bastion_cluster_base_dir }}/install"
+  async: 3600
+  poll: 0
+  register: __installer_results
+
+- name: Check install status
+  ansible.builtin.async_status:
+    jid: "{{ __installer_results['ansible_job_id'] }}"
+  register: __poll_results
+  until: __poll_results['finished']
+  retries: "{{ wait| default('60') }}"
+  delay: 60
+  ignore_errors: true
+
+# OpenShift install prints in stderr even if rc==0
+- name: Show logs
+  ansible.builtin.debug:
+    var: __poll_results['stderr_lines']
+  when: __poll_results['rc'] != 0
+
+- name: Get console details
+  ansible.builtin.shell:
+    cmd: "/usr/local/bin/oc get routes -n openshift-console console -o json"
+  register: __cluster_console
+  environment:
+    KUBECONFIG: "{{ bastion_cluster_base_dir}}/install/auth/kubeconfig"
+  changed_when: false
+
+- name: Set fact cluster console
+  ansible.builtin.set_fact:
+    __console_route: "{{ __cluster_console['stdout'] | from_json }}"
+
+- name: Show details
+  ansible.builtin.debug:
+    msg:
+      - "Kubeadmin password: {{ bastion_cluster_base_dir }}/install/auth/kubeadmin-password"
+      - "Console URL: https://{{ __console_route['spec']['host'] }}"
+      - "Kubeconfig: {{ bastion_cluster_base_dir }}/install/auth/kubeconfig"

@@ -1,0 +1,51 @@
+---
+- name: Ensure the system is RHEL8
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['distribution'] == "RedHat"
+      - ansible_facts['distribution_major_version'] == "8"
+    fail_msg: "The bastion host is not RHEL8"
+
+- name: Ensure required packages installed
+  ansible.builtin.dnf:
+    name: "{{ bastion_pkgs_install | default(omit) }}"
+    state: installed
+
+- name: Download OpenShift client binary
+  ansible.builtin.unarchive:
+    src: "{{ item['url'] }}"
+    dest: /usr/local/bin
+    remote_src: true
+    creates: "/usr/local/bin/{{ item['name'] }}"
+  environment:
+    http_proxy: "{{ httpProxy | default(none) }}"
+    https_proxy: "{{ httpsProxy | default(none) }}"
+  with_items:
+    - { name: oc, url: "{{ bastion_openshift_client_url }}" }
+    - { name: openshift-install, url: "{{ bastion_openshift_installer_url }}" }
+
+- name: Ensure Openshift bash completions are present
+  ansible.builtin.shell:
+    cmd: "/usr/local/bin/{{ item }} completion bash > /etc/bash_completion.d/{{ item }}"
+    creates: "/etc/bash_completion.d/{{ item }}"
+  with_items:
+    - oc
+    - openshift-install
+
+- name: Download vCenter root certificates
+  ansible.builtin.unarchive:
+    src: "https://{{ vsphere['vcenter'] }}/certs/download.zip"
+    dest: /tmp
+    remote_src: true
+  when: vsphere is defined
+
+- name: Add vCenter certificate to anchors
+  ansible.builtin.copy:
+    src: /tmp/certs/lin/
+    dest: /etc/pki/ca-trust/source/anchors/
+    mode: "0644"
+    remote_src: true
+
+- name: Update catrust
+  ansible.builtin.shell:
+    cmd: update-ca-trust extract

@@ -1,0 +1,10 @@
+---
+- name: Prepare and install OpenShift cluster
+  hosts: all
+  gather_facts: true
+  roles:
+    - name: prepare-os
+      become: yes
+      tags: prepare-os
+    - name: install
+      tags: install

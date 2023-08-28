@@ -1,0 +1,19 @@
+---
+all:
+  hosts:
+  children:
+    rhdp:
+      hosts:
+        localhost:
+          #ansible_host: bastion
+          ansible_connection: local
+    qas:
+      hosts:
+    prd:
+      hosts:
+    bastion:
+      children:
+        dev:
+        qas:
+        prd:
+
