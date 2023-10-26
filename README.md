@@ -26,13 +26,14 @@ An example of the playbook.
 
 ## How to deploy
 
-- Create a `auth.yml` file with vCenter credentials
+- Create a `./group_vars/all/auth.yml` file with credentials
 
   ```yaml
   vsphere_username: changeme
   vsphere_password: changeme
+  pull_secret: changeme
   ```
-- Prepare the inventory. These Ansible roles runs on a **Bastion host** hence you can run it from your workstation or locally cloning the repo in the bastion host itself.
+- Prepare the inventory. These Ansible roles run on a **Bastion host** hence you can run it from your workstation or locally cloning the repo in the bastion host itself.
 
   ```yaml
   all:
