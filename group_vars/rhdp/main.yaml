@@ -8,31 +8,31 @@ vsphere:
   datacenter: SDDC-Datacenter
   cluster: /SDDC-Datacenter/host/Cluster-1
   datastore: /SDDC-Datacenter/datastore/WorkloadDatastore
-  network: segment-sandbox-zrq77
-  folder: /SDDC-Datacenter/vm/Workloads/sandbox-zrq77
+  network: segment-sandbox-p488w
+  folder: /SDDC-Datacenter/vm/Workloads/sandbox-p488w
   username: "{{ vsphere_username | default('changeme') }}"
   password: "{{ vsphere_password | default('changeme') }}"
 
 # Cluster list and specific params
 openshift_clusters:
-  - name: zrq77
+  - name: p488w
     baseDomain: dynamic.opentlc.com
     networking:
       clusterNetworkcidr: 172.16.0.0/16
-      machineNetworkcidr: 192.168.16.0/24
+      machineNetworkcidr: 192.168.60.0/24
       serviceNetworkcidr: 172.17.0.0/16
     platform:
-      apiVIP: 192.168.16.201
-      ingressVIP: 192.168.16.202
+      apiVIP: 192.168.60.201
+      ingressVIP: 192.168.60.202
     controlplane:
       replicas: 3
       cpus: 8
       ram: 16384
       disksizeGB: 120
     compute:
-      replicas: 3
-      cpus: 8
-      ram: 16384
+      replicas: 8
+      cpus: 12
+      ram: 32768
       disksizeGB: 120
 
 additionalTrustBundlePolicy: Proxyonly
