@@ -1,0 +1,113 @@
+# {{ ansible_managed }}
+{% set controlplane = current_cluster['compute'] %}
+{% set compute = current_cluster['compute'] %}
+{% set infra = current_cluster['infra'] %}
+{% set storage = current_cluster['storage'] %}
+{% set network  = current_cluster['networking'] %}
+apiVersion: v1
+baseDomain: {{ current_cluster['baseDomain'] }}
+{% if httpProxy is defined or httpsProxy is defined or noProxy is defined %}
+proxy:
+{% endif %}
+{% if httpProxy is defined %}
+  httpProxy: {{ httpProxy }}
+{% endif %}
+{% if httpsProxy is defined %}
+  httpsProxy: {{ httpsProxy }}
+{% endif %}
+{% if noProxy is defined %}
+  noProxy: {{ noProxy }}
+{% endif %}
+compute: 
+- hyperthreading: Enabled
+  architecture: amd64
+  name: worker
+{% if compute['replicas'] is defined and compute['replicas']|int > 0 %}
+  replicas: {{ compute['replicas'] }}
+{% else %}
+  replicas: 3
+{% endif %}
+{% if compute['cpus'] is defined or compute['ram'] is defined or compute['disksizeGB'] is defined %}
+  platform:
+    vsphere:
+{% if compute['cpus']|int is defined %}
+      cpus: {{ compute['cpus'] }}
+{% endif %}
+{% if compute['ram'] is defined %}
+      memoryMB: {{ compute['ram'] }}
+{% endif %}
+{% if compute['disksizeGB'] is defined %}
+      osDisk:
+        diskSizeGB: {{ compute['disksizeGB'] }}
+{% endif %}
+{% else %}
+  platform: {}
+{% endif %}
+controlPlane: 
+  hyperthreading: Enabled 
+  architecture: amd64
+  name: master
+{% if controlPlane['replicas'] is defined and controlPlane['replicas']|int > 0 %}
+  replicas: {{ controlplane['replicas'] }}
+{% else %}
+  replicas: 3
+{% endif %}
+{% if controlplane['cpus'] is defined or controlplane['ram'] is defined or controlplane['disksizeGB'] is defined %}
+  platform:
+    vsphere:
+{% if controlplane['cpus']|int is defined %}
+      cpus: {{ controlplane['cpus'] }}
+{% endif %}
+{% if controlplane['ram'] is defined %}
+      memoryMB: {{ controlplane['ram'] }}
+{% endif %}
+{% if controlplane['disksizeGB'] is defined %}
+      osDisk:
+        diskSizeGB: {{ controlplane['disksizeGB'] }}
+{% endif %}
+{% else %}
+  platform: {}
+{% endif %}
+metadata:
+  creationTimestamp: null
+  name: {{ current_cluster['name'] }}
+networking:
+  clusterNetwork:
+  - cidr: {{ network['clusterNetworkcidr'] }}
+    hostPrefix: 23
+  machineNetwork:
+  - cidr: {{ network['machineNetworkcidr'] }}
+  networkType: OVNKubernetes
+  serviceNetwork:
+  - {{ network['serviceNetworkcidr'] }}
+platform:
+  vsphere:
+    apiVIPs:
+      - {{ current_cluster['platform']['apiVIP'] }}
+    ingressVIPs:
+      - {{ current_cluster['platform']['ingressVIP'] }}
+    diskType: thin
+    failureDomains:
+    - name: generated-failure-domain
+      region: generated-region
+      zone: generated-zone
+      server: {{ vsphere['vcenter'] }}
+      topology:
+        computeCluster: {{ vsphere['cluster'] }}
+        datacenter: {{ vsphere['datacenter'] }}
+        datastore: {{ vsphere['datastore'] }}
+        networks:
+        - {{ vsphere['network'] }}
+        resourcePool: {{ vsphere['cluster'] }}/Resources
+        folder: {{ vsphere['folder'] }}
+    vcenters:
+    - datacenters:
+      - {{ vsphere['datacenter'] }}
+      password: {{ vsphere['password'] }}
+      port: 443
+      server: {{ vsphere['vcenter'] }}
+      user: {{ vsphere['username'] }}
+publish: External
+pullSecret: '{{ pull_secret }}'
+sshKey: |
+  {{ __ssh_keypair['public_key'] }}

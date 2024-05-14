@@ -1,2 +1,3 @@
 ---
 base_dir: /home/lab-user/ocp
+#openshift_version: 4.14.25

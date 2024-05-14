@@ -1,0 +1,769 @@
+2024-05-14 07:09:57,453 p=26297 u=lab-user n=ansible | PLAY [Prepare and install OpenShift cluster] *************************************************************************************************************************************************
+2024-05-14 07:09:57,468 p=26297 u=lab-user n=ansible | TASK [Gathering Facts ] **********************************************************************************************************************************************************************
+2024-05-14 07:09:58,415 p=26297 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:09:58,434 p=26297 u=lab-user n=ansible | TASK [prepare-os : Ensure the system is RHEL8 that=['ansible_facts[\'distribution\'] == "RedHat"', 'ansible_facts[\'distribution_major_version\'] == "8" or ansible_facts[\'distribution_major_version\'] == "9"'], fail_msg=The bastion host is not RHEL8 or RHEL9] ***
+2024-05-14 07:09:58,461 p=26297 u=lab-user n=ansible | ok: [localhost] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2024-05-14 07:09:58,471 p=26297 u=lab-user n=ansible | TASK [prepare-os : Ensure required packages installed name={{ bastion_pkgs_install | default(omit) }}, state=installed] **********************************************************************
+2024-05-14 07:09:59,946 p=26297 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:09:59,956 p=26297 u=lab-user n=ansible | TASK [prepare-os : Download OpenShift client binary src={{ item['url'] }}, dest=/usr/local/bin, remote_src=True, creates=/usr/local/bin/{{ item['name'] }}] **********************************
+2024-05-14 07:10:00,055 p=26297 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'oc', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-client-linux.tar.gz'}) 
+2024-05-14 07:10:00,102 p=26297 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'openshift-install', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-install-linux.tar.gz'}) 
+2024-05-14 07:10:00,114 p=26297 u=lab-user n=ansible | TASK [prepare-os : Ensure Openshift bash completions are present creates=/etc/bash_completion.d/{{ item }}, _raw_params=/usr/local/bin/{{ item }} completion bash > /etc/bash_completion.d/{{ item }}] ***
+2024-05-14 07:10:00,455 p=26297 u=lab-user n=ansible | ok: [localhost] => (item=oc)
+2024-05-14 07:10:00,667 p=26297 u=lab-user n=ansible | ok: [localhost] => (item=openshift-install)
+2024-05-14 07:10:00,678 p=26297 u=lab-user n=ansible | TASK [prepare-os : Download vCenter root certificates src=https://{{ vsphere['vcenter'] }}/certs/download.zip, dest=/tmp, remote_src=True] ***************************************************
+2024-05-14 07:10:02,159 p=26297 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:10:02,168 p=26297 u=lab-user n=ansible | TASK [prepare-os : Add vCenter certificate to anchors src=/tmp/certs/lin/, dest=/etc/pki/ca-trust/source/anchors/, mode=0644, remote_src=True] ***********************************************
+2024-05-14 07:10:02,520 p=26297 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:10:02,530 p=26297 u=lab-user n=ansible | TASK [prepare-os : Update catrust _raw_params=update-ca-trust extract] ***********************************************************************************************************************
+2024-05-14 07:10:03,590 p=26297 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 07:10:03,609 p=26297 u=lab-user n=ansible | TASK [install : Import tasks to install cluster _raw_params=install.yaml] ********************************************************************************************************************
+2024-05-14 07:10:03,647 p=26297 u=lab-user n=ansible | included: /home/lab-user/ocp/ocp-ipi-install-prep-with-ansible/roles/install/tasks/install.yaml for localhost => (item={'name': 'gtwdl', 'baseDomain': 'dynamic.redhatworkshops.io', 'networking': {'clusterNetworkcidr': '172.16.0.0/16', 'machineNetworkcidr': '192.168.18.0/24', 'serviceNetworkcidr': '172.17.0.0/16'}, 'platform': {'apiVIP': '192.168.18.201', 'ingressVIP': '192.168.18.202'}, 'controlplane': {'replicas': 3, 'cpus': 8, 'ram': 16384, 'disksizeGB': 120}, 'compute': {'replicas': 3, 'cpus': 12, 'ram': 32768, 'disksizeGB': 120}})
+2024-05-14 07:10:03,660 p=26297 u=lab-user n=ansible | TASK [install : Show values for cluster gtwdl msg=['{{ current_cluster }}']] *****************************************************************************************************************
+2024-05-14 07:10:03,680 p=26297 u=lab-user n=ansible | ok: [localhost] => {
+    "msg": [
+        {
+            "baseDomain": "dynamic.redhatworkshops.io",
+            "compute": {
+                "cpus": 12,
+                "disksizeGB": 120,
+                "ram": 32768,
+                "replicas": 3
+            },
+            "controlplane": {
+                "cpus": 8,
+                "disksizeGB": 120,
+                "ram": 16384,
+                "replicas": 3
+            },
+            "name": "gtwdl",
+            "networking": {
+                "clusterNetworkcidr": "172.16.0.0/16",
+                "machineNetworkcidr": "192.168.18.0/24",
+                "serviceNetworkcidr": "172.17.0.0/16"
+            },
+            "platform": {
+                "apiVIP": "192.168.18.201",
+                "ingressVIP": "192.168.18.202"
+            }
+        }
+    ]
+}
+2024-05-14 07:10:03,691 p=26297 u=lab-user n=ansible | TASK [install : Create cluster base directory for gtwdl path={{ bastion_cluster_base_dir }}, state=directory, mode=0755] *********************************************************************
+2024-05-14 07:10:04,050 p=26297 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 07:10:04,062 p=26297 u=lab-user n=ansible | TASK [install : Create directory structure in /home/lab-user/ocp for gtwdl state=directory, path={{ item }}, mode=0755] **********************************************************************
+2024-05-14 07:10:04,318 p=26297 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/auth)
+2024-05-14 07:10:04,525 p=26297 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/install)
+2024-05-14 07:10:04,724 p=26297 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/backup)
+2024-05-14 07:10:04,737 p=26297 u=lab-user n=ansible | TASK [install : Generate ssh keys for gtwdl path={{ bastion_cluster_base_dir }}/auth/ssh, size=4096, type=rsa] *******************************************************************************
+2024-05-14 07:10:06,420 p=26297 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 07:10:06,432 p=26297 u=lab-user n=ansible | TASK [install : Deploy the openshift install configuration for gtwdl src=install-config.yaml.j2, dest={{ bastion_cluster_base_dir }}/{{ item }}/install-config.yaml, mode=0644] **************
+2024-05-14 07:10:06,850 p=26297 u=lab-user n=ansible | changed: [localhost] => (item=install)
+2024-05-14 07:10:07,251 p=26297 u=lab-user n=ansible | changed: [localhost] => (item=backup)
+2024-05-14 07:10:07,264 p=26297 u=lab-user n=ansible | TASK [install : Install cluster gtwdl chdir={{ bastion_cluster_base_dir }}/install, _raw_params=/usr/local/bin/openshift-install create cluster --log-level=debug] ***************************
+2024-05-14 07:10:07,626 p=26297 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 07:10:07,638 p=26297 u=lab-user n=ansible | TASK [install : Check install status jid={{ __installer_results['ansible_job_id'] }}] ********************************************************************************************************
+2024-05-14 07:10:08,027 p=26297 u=lab-user n=ansible | fatal: [localhost]: FAILED! => {"ansible_job_id": "285202024038.26653", "attempts": 1, "changed": true, "cmd": "/usr/local/bin/openshift-install create cluster --log-level=debug", "delta": "0:00:00.081407", "end": "2024-05-14 07:10:07.839844", "finished": 1, "msg": "non-zero return code", "rc": 3, "results_file": "/home/lab-user/.ansible_async/285202024038.26653", "start": "2024-05-14 07:10:07.758437", "started": 1, "stderr": "level=debug msg=OpenShift Installer 4.15.12\nlevel=debug msg=Built from commit e29d44b3b0277970c8c3a1f0225ef0f943bf9b9b\nlevel=debug msg=Fetching Metadata...\nlevel=debug msg=Loading Metadata...\nlevel=debug msg=  Loading Cluster ID...\nlevel=debug msg=    Loading Install Config...\nlevel=debug msg=      Loading SSH Key...\nlevel=debug msg=      Loading Base Domain...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Cluster Name...\nlevel=debug msg=        Loading Base Domain...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Pull Secret...\nlevel=debug msg=      Loading Platform...\nlevel=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error converting YAML to JSON: yaml: line 52: did not find expected key", "stderr_lines": ["level=debug msg=OpenShift Installer 4.15.12", "level=debug msg=Built from commit e29d44b3b0277970c8c3a1f0225ef0f943bf9b9b", "level=debug msg=Fetching Metadata...", "level=debug msg=Loading Metadata...", "level=debug msg=  Loading Cluster ID...", "level=debug msg=    Loading Install Config...", "level=debug msg=      Loading SSH Key...", "level=debug msg=      Loading Base Domain...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Cluster Name...", "level=debug msg=        Loading Base Domain...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Pull Secret...", "level=debug msg=      Loading Platform...", "level=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error converting YAML to JSON: yaml: line 52: did not find expected key"], "stdout": "", "stdout_lines": []}
+2024-05-14 07:10:08,027 p=26297 u=lab-user n=ansible | ...ignoring
+2024-05-14 07:10:08,038 p=26297 u=lab-user n=ansible | TASK [install : Show logs var=__poll_results['stderr_lines']] ********************************************************************************************************************************
+2024-05-14 07:10:08,063 p=26297 u=lab-user n=ansible | ok: [localhost] => {
+    "__poll_results['stderr_lines']": [
+        "level=debug msg=OpenShift Installer 4.15.12",
+        "level=debug msg=Built from commit e29d44b3b0277970c8c3a1f0225ef0f943bf9b9b",
+        "level=debug msg=Fetching Metadata...",
+        "level=debug msg=Loading Metadata...",
+        "level=debug msg=  Loading Cluster ID...",
+        "level=debug msg=    Loading Install Config...",
+        "level=debug msg=      Loading SSH Key...",
+        "level=debug msg=      Loading Base Domain...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Cluster Name...",
+        "level=debug msg=        Loading Base Domain...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Pull Secret...",
+        "level=debug msg=      Loading Platform...",
+        "level=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error converting YAML to JSON: yaml: line 52: did not find expected key"
+    ]
+}
+2024-05-14 07:10:08,074 p=26297 u=lab-user n=ansible | TASK [install : Get console details _raw_params=/usr/local/bin/oc get routes -n openshift-console console -o json] ***************************************************************************
+2024-05-14 07:10:08,399 p=26297 u=lab-user n=ansible | fatal: [localhost]: FAILED! => {"changed": false, "cmd": "/usr/local/bin/oc get routes -n openshift-console console -o json", "delta": "0:00:00.119216", "end": "2024-05-14 07:10:08.376369", "msg": "non-zero return code", "rc": 1, "start": "2024-05-14 07:10:08.257153", "stderr": "error: Missing or incomplete configuration info.  Please point to an existing, complete config file:\n\n\n  1. Via the command-line flag --kubeconfig\n  2. Via the KUBECONFIG environment variable\n  3. In your home directory as ~/.kube/config\n\nTo view or setup config directly use the 'config' command.", "stderr_lines": ["error: Missing or incomplete configuration info.  Please point to an existing, complete config file:", "", "", "  1. Via the command-line flag --kubeconfig", "  2. Via the KUBECONFIG environment variable", "  3. In your home directory as ~/.kube/config", "", "To view or setup config directly use the 'config' command."], "stdout": "", "stdout_lines": []}
+2024-05-14 07:10:08,401 p=26297 u=lab-user n=ansible | PLAY RECAP ***********************************************************************************************************************************************************************************
+2024-05-14 07:10:08,401 p=26297 u=lab-user n=ansible | localhost                  : ok=16   changed=7    unreachable=0    failed=1    skipped=1    rescued=0    ignored=1   
+2024-05-14 07:21:38,835 p=26934 u=lab-user n=ansible | PLAY [Prepare and install OpenShift cluster] *************************************************************************************************************************************************
+2024-05-14 07:21:38,850 p=26934 u=lab-user n=ansible | TASK [Gathering Facts ] **********************************************************************************************************************************************************************
+2024-05-14 07:21:39,772 p=26934 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:21:39,791 p=26934 u=lab-user n=ansible | TASK [prepare-os : Ensure the system is RHEL8 that=['ansible_facts[\'distribution\'] == "RedHat"', 'ansible_facts[\'distribution_major_version\'] == "8" or ansible_facts[\'distribution_major_version\'] == "9"'], fail_msg=The bastion host is not RHEL8 or RHEL9] ***
+2024-05-14 07:21:39,820 p=26934 u=lab-user n=ansible | ok: [localhost] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2024-05-14 07:21:39,829 p=26934 u=lab-user n=ansible | TASK [prepare-os : Ensure required packages installed name={{ bastion_pkgs_install | default(omit) }}, state=installed] **********************************************************************
+2024-05-14 07:21:41,238 p=26934 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:21:41,249 p=26934 u=lab-user n=ansible | TASK [prepare-os : Download OpenShift client binary src={{ item['url'] }}, dest=/usr/local/bin, remote_src=True, creates=/usr/local/bin/{{ item['name'] }}] **********************************
+2024-05-14 07:21:47,082 p=26934 u=lab-user n=ansible | changed: [localhost] => (item={'name': 'oc', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.14.25/openshift-client-linux.tar.gz'})
+2024-05-14 07:22:03,365 p=26934 u=lab-user n=ansible | changed: [localhost] => (item={'name': 'openshift-install', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.14.25/openshift-install-linux.tar.gz'})
+2024-05-14 07:22:03,376 p=26934 u=lab-user n=ansible | TASK [prepare-os : Ensure Openshift bash completions are present creates=/etc/bash_completion.d/{{ item }}, _raw_params=/usr/local/bin/{{ item }} completion bash > /etc/bash_completion.d/{{ item }}] ***
+2024-05-14 07:22:03,740 p=26934 u=lab-user n=ansible | ok: [localhost] => (item=oc)
+2024-05-14 07:22:03,933 p=26934 u=lab-user n=ansible | ok: [localhost] => (item=openshift-install)
+2024-05-14 07:22:03,943 p=26934 u=lab-user n=ansible | TASK [prepare-os : Download vCenter root certificates src=https://{{ vsphere['vcenter'] }}/certs/download.zip, dest=/tmp, remote_src=True] ***************************************************
+2024-05-14 07:22:05,071 p=26934 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:22:05,082 p=26934 u=lab-user n=ansible | TASK [prepare-os : Add vCenter certificate to anchors src=/tmp/certs/lin/, dest=/etc/pki/ca-trust/source/anchors/, mode=0644, remote_src=True] ***********************************************
+2024-05-14 07:22:05,474 p=26934 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:22:05,483 p=26934 u=lab-user n=ansible | TASK [prepare-os : Update catrust _raw_params=update-ca-trust extract] ***********************************************************************************************************************
+2024-05-14 07:22:06,454 p=26934 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 07:22:06,472 p=26934 u=lab-user n=ansible | TASK [install : Import tasks to install cluster _raw_params=install.yaml] ********************************************************************************************************************
+2024-05-14 07:22:06,510 p=26934 u=lab-user n=ansible | included: /home/lab-user/ocp/ocp-ipi-install-prep-with-ansible/roles/install/tasks/install.yaml for localhost => (item={'name': 'gtwdl', 'baseDomain': 'dynamic.redhatworkshops.io', 'networking': {'clusterNetworkcidr': '172.16.0.0/16', 'machineNetworkcidr': '192.168.18.0/24', 'serviceNetworkcidr': '172.17.0.0/16'}, 'platform': {'apiVIP': '192.168.18.201', 'ingressVIP': '192.168.18.202'}, 'controlplane': {'replicas': 3, 'cpus': 8, 'ram': 16384, 'disksizeGB': 120}, 'compute': {'replicas': 3, 'cpus': 12, 'ram': 32768, 'disksizeGB': 120}})
+2024-05-14 07:22:06,522 p=26934 u=lab-user n=ansible | TASK [install : Show values for cluster gtwdl msg=['{{ current_cluster }}']] *****************************************************************************************************************
+2024-05-14 07:22:06,544 p=26934 u=lab-user n=ansible | ok: [localhost] => {
+    "msg": [
+        {
+            "baseDomain": "dynamic.redhatworkshops.io",
+            "compute": {
+                "cpus": 12,
+                "disksizeGB": 120,
+                "ram": 32768,
+                "replicas": 3
+            },
+            "controlplane": {
+                "cpus": 8,
+                "disksizeGB": 120,
+                "ram": 16384,
+                "replicas": 3
+            },
+            "name": "gtwdl",
+            "networking": {
+                "clusterNetworkcidr": "172.16.0.0/16",
+                "machineNetworkcidr": "192.168.18.0/24",
+                "serviceNetworkcidr": "172.17.0.0/16"
+            },
+            "platform": {
+                "apiVIP": "192.168.18.201",
+                "ingressVIP": "192.168.18.202"
+            }
+        }
+    ]
+}
+2024-05-14 07:22:06,554 p=26934 u=lab-user n=ansible | TASK [install : Create cluster base directory for gtwdl path={{ bastion_cluster_base_dir }}, state=directory, mode=0755] *********************************************************************
+2024-05-14 07:22:06,892 p=26934 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:22:06,904 p=26934 u=lab-user n=ansible | TASK [install : Create directory structure in /home/lab-user/ocp for gtwdl state=directory, path={{ item }}, mode=0755] **********************************************************************
+2024-05-14 07:22:07,123 p=26934 u=lab-user n=ansible | ok: [localhost] => (item=/home/lab-user/ocp/gtwdl/auth)
+2024-05-14 07:22:07,340 p=26934 u=lab-user n=ansible | ok: [localhost] => (item=/home/lab-user/ocp/gtwdl/install)
+2024-05-14 07:22:07,539 p=26934 u=lab-user n=ansible | ok: [localhost] => (item=/home/lab-user/ocp/gtwdl/backup)
+2024-05-14 07:22:07,551 p=26934 u=lab-user n=ansible | TASK [install : Generate ssh keys for gtwdl path={{ bastion_cluster_base_dir }}/auth/ssh, size=4096, type=rsa] *******************************************************************************
+2024-05-14 07:22:07,996 p=26934 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:22:08,009 p=26934 u=lab-user n=ansible | TASK [install : Deploy the openshift install configuration for gtwdl src=install-config.yaml.j2, dest={{ bastion_cluster_base_dir }}/{{ item }}/install-config.yaml, mode=0644] **************
+2024-05-14 07:22:08,483 p=26934 u=lab-user n=ansible | ok: [localhost] => (item=install)
+2024-05-14 07:22:08,967 p=26934 u=lab-user n=ansible | ok: [localhost] => (item=backup)
+2024-05-14 07:22:08,979 p=26934 u=lab-user n=ansible | TASK [install : Install cluster gtwdl chdir={{ bastion_cluster_base_dir }}/install, _raw_params=/usr/local/bin/openshift-install create cluster --log-level=debug] ***************************
+2024-05-14 07:22:09,343 p=26934 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 07:22:09,354 p=26934 u=lab-user n=ansible | TASK [install : Check install status jid={{ __installer_results['ansible_job_id'] }}] ********************************************************************************************************
+2024-05-14 07:22:09,730 p=26934 u=lab-user n=ansible | fatal: [localhost]: FAILED! => {"ansible_job_id": "952708409513.27338", "attempts": 1, "changed": true, "cmd": "/usr/local/bin/openshift-install create cluster --log-level=debug", "delta": "0:00:00.072002", "end": "2024-05-14 07:22:09.544363", "finished": 1, "msg": "non-zero return code", "rc": 3, "results_file": "/home/lab-user/.ansible_async/952708409513.27338", "start": "2024-05-14 07:22:09.472361", "started": 1, "stderr": "level=debug msg=OpenShift Installer 4.14.25\nlevel=debug msg=Built from commit b6dcee134a2aa62ea0b00e559dc18376cf31b960\nlevel=debug msg=Fetching Metadata...\nlevel=debug msg=Loading Metadata...\nlevel=debug msg=  Loading Cluster ID...\nlevel=debug msg=    Loading Install Config...\nlevel=debug msg=      Loading SSH Key...\nlevel=debug msg=      Loading Base Domain...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Cluster Name...\nlevel=debug msg=        Loading Base Domain...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Networking...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Pull Secret...\nlevel=debug msg=      Loading Platform...\nlevel=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error converting YAML to JSON: yaml: line 52: did not find expected key", "stderr_lines": ["level=debug msg=OpenShift Installer 4.14.25", "level=debug msg=Built from commit b6dcee134a2aa62ea0b00e559dc18376cf31b960", "level=debug msg=Fetching Metadata...", "level=debug msg=Loading Metadata...", "level=debug msg=  Loading Cluster ID...", "level=debug msg=    Loading Install Config...", "level=debug msg=      Loading SSH Key...", "level=debug msg=      Loading Base Domain...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Cluster Name...", "level=debug msg=        Loading Base Domain...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Networking...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Pull Secret...", "level=debug msg=      Loading Platform...", "level=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error converting YAML to JSON: yaml: line 52: did not find expected key"], "stdout": "", "stdout_lines": []}
+2024-05-14 07:22:09,731 p=26934 u=lab-user n=ansible | ...ignoring
+2024-05-14 07:22:09,741 p=26934 u=lab-user n=ansible | TASK [install : Show logs var=__poll_results['stderr_lines']] ********************************************************************************************************************************
+2024-05-14 07:22:09,768 p=26934 u=lab-user n=ansible | ok: [localhost] => {
+    "__poll_results['stderr_lines']": [
+        "level=debug msg=OpenShift Installer 4.14.25",
+        "level=debug msg=Built from commit b6dcee134a2aa62ea0b00e559dc18376cf31b960",
+        "level=debug msg=Fetching Metadata...",
+        "level=debug msg=Loading Metadata...",
+        "level=debug msg=  Loading Cluster ID...",
+        "level=debug msg=    Loading Install Config...",
+        "level=debug msg=      Loading SSH Key...",
+        "level=debug msg=      Loading Base Domain...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Cluster Name...",
+        "level=debug msg=        Loading Base Domain...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Networking...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Pull Secret...",
+        "level=debug msg=      Loading Platform...",
+        "level=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error converting YAML to JSON: yaml: line 52: did not find expected key"
+    ]
+}
+2024-05-14 07:22:09,783 p=26934 u=lab-user n=ansible | TASK [install : Get console details _raw_params=/usr/local/bin/oc get routes -n openshift-console console -o json] ***************************************************************************
+2024-05-14 07:22:10,131 p=26934 u=lab-user n=ansible | fatal: [localhost]: FAILED! => {"changed": false, "cmd": "/usr/local/bin/oc get routes -n openshift-console console -o json", "delta": "0:00:00.117431", "end": "2024-05-14 07:22:10.103303", "msg": "non-zero return code", "rc": 1, "start": "2024-05-14 07:22:09.985872", "stderr": "W0514 07:22:10.100057   27386 loader.go:222] Config not found: /home/lab-user/ocp/gtwdl/install/auth/kubeconfig\nerror: Missing or incomplete configuration info.  Please point to an existing, complete config file:\n\n\n  1. Via the command-line flag --kubeconfig\n  2. Via the KUBECONFIG environment variable\n  3. In your home directory as ~/.kube/config\n\nTo view or setup config directly use the 'config' command.", "stderr_lines": ["W0514 07:22:10.100057   27386 loader.go:222] Config not found: /home/lab-user/ocp/gtwdl/install/auth/kubeconfig", "error: Missing or incomplete configuration info.  Please point to an existing, complete config file:", "", "", "  1. Via the command-line flag --kubeconfig", "  2. Via the KUBECONFIG environment variable", "  3. In your home directory as ~/.kube/config", "", "To view or setup config directly use the 'config' command."], "stdout": "", "stdout_lines": []}
+2024-05-14 07:22:10,133 p=26934 u=lab-user n=ansible | PLAY RECAP ***********************************************************************************************************************************************************************************
+2024-05-14 07:22:10,133 p=26934 u=lab-user n=ansible | localhost                  : ok=17   changed=4    unreachable=0    failed=1    skipped=0    rescued=0    ignored=1   
+2024-05-14 07:23:27,122 p=27448 u=lab-user n=ansible | PLAY [Prepare and install OpenShift cluster] *************************************************************************************************************************************************
+2024-05-14 07:23:27,138 p=27448 u=lab-user n=ansible | TASK [Gathering Facts ] **********************************************************************************************************************************************************************
+2024-05-14 07:23:28,047 p=27448 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:23:28,067 p=27448 u=lab-user n=ansible | TASK [prepare-os : Ensure the system is RHEL8 that=['ansible_facts[\'distribution\'] == "RedHat"', 'ansible_facts[\'distribution_major_version\'] == "8" or ansible_facts[\'distribution_major_version\'] == "9"'], fail_msg=The bastion host is not RHEL8 or RHEL9] ***
+2024-05-14 07:23:28,098 p=27448 u=lab-user n=ansible | ok: [localhost] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2024-05-14 07:23:28,108 p=27448 u=lab-user n=ansible | TASK [prepare-os : Ensure required packages installed name={{ bastion_pkgs_install | default(omit) }}, state=installed] **********************************************************************
+2024-05-14 07:23:29,509 p=27448 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:23:29,519 p=27448 u=lab-user n=ansible | TASK [prepare-os : Download OpenShift client binary src={{ item['url'] }}, dest=/usr/local/bin, remote_src=True, creates=/usr/local/bin/{{ item['name'] }}] **********************************
+2024-05-14 07:23:29,612 p=27448 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'oc', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.14.25/openshift-client-linux.tar.gz'}) 
+2024-05-14 07:23:29,664 p=27448 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'openshift-install', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.14.25/openshift-install-linux.tar.gz'}) 
+2024-05-14 07:23:29,675 p=27448 u=lab-user n=ansible | TASK [prepare-os : Ensure Openshift bash completions are present creates=/etc/bash_completion.d/{{ item }}, _raw_params=/usr/local/bin/{{ item }} completion bash > /etc/bash_completion.d/{{ item }}] ***
+2024-05-14 07:23:30,019 p=27448 u=lab-user n=ansible | ok: [localhost] => (item=oc)
+2024-05-14 07:23:30,239 p=27448 u=lab-user n=ansible | ok: [localhost] => (item=openshift-install)
+2024-05-14 07:23:30,250 p=27448 u=lab-user n=ansible | TASK [prepare-os : Download vCenter root certificates src=https://{{ vsphere['vcenter'] }}/certs/download.zip, dest=/tmp, remote_src=True] ***************************************************
+2024-05-14 07:23:31,610 p=27448 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:23:31,620 p=27448 u=lab-user n=ansible | TASK [prepare-os : Add vCenter certificate to anchors src=/tmp/certs/lin/, dest=/etc/pki/ca-trust/source/anchors/, mode=0644, remote_src=True] ***********************************************
+2024-05-14 07:23:31,990 p=27448 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:23:32,000 p=27448 u=lab-user n=ansible | TASK [prepare-os : Update catrust _raw_params=update-ca-trust extract] ***********************************************************************************************************************
+2024-05-14 07:23:33,009 p=27448 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 07:23:33,027 p=27448 u=lab-user n=ansible | TASK [install : Import tasks to install cluster _raw_params=install.yaml] ********************************************************************************************************************
+2024-05-14 07:23:33,075 p=27448 u=lab-user n=ansible | included: /home/lab-user/ocp/ocp-ipi-install-prep-with-ansible/roles/install/tasks/install.yaml for localhost => (item={'name': 'gtwdl', 'baseDomain': 'dynamic.redhatworkshops.io', 'networking': {'clusterNetworkcidr': '172.16.0.0/16', 'machineNetworkcidr': '192.168.18.0/24', 'serviceNetworkcidr': '172.17.0.0/16'}, 'platform': {'apiVIP': '192.168.18.201', 'ingressVIP': '192.168.18.202'}, 'controlplane': {'replicas': 3, 'cpus': 8, 'ram': 16384, 'disksizeGB': 120}, 'compute': {'replicas': 3, 'cpus': 12, 'ram': 32768, 'disksizeGB': 120}})
+2024-05-14 07:23:33,088 p=27448 u=lab-user n=ansible | TASK [install : Show values for cluster gtwdl msg=['{{ current_cluster }}']] *****************************************************************************************************************
+2024-05-14 07:23:33,111 p=27448 u=lab-user n=ansible | ok: [localhost] => {
+    "msg": [
+        {
+            "baseDomain": "dynamic.redhatworkshops.io",
+            "compute": {
+                "cpus": 12,
+                "disksizeGB": 120,
+                "ram": 32768,
+                "replicas": 3
+            },
+            "controlplane": {
+                "cpus": 8,
+                "disksizeGB": 120,
+                "ram": 16384,
+                "replicas": 3
+            },
+            "name": "gtwdl",
+            "networking": {
+                "clusterNetworkcidr": "172.16.0.0/16",
+                "machineNetworkcidr": "192.168.18.0/24",
+                "serviceNetworkcidr": "172.17.0.0/16"
+            },
+            "platform": {
+                "apiVIP": "192.168.18.201",
+                "ingressVIP": "192.168.18.202"
+            }
+        }
+    ]
+}
+2024-05-14 07:23:33,125 p=27448 u=lab-user n=ansible | TASK [install : Create cluster base directory for gtwdl path={{ bastion_cluster_base_dir }}, state=directory, mode=0755] *********************************************************************
+2024-05-14 07:23:33,491 p=27448 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 07:23:33,502 p=27448 u=lab-user n=ansible | TASK [install : Create directory structure in /home/lab-user/ocp for gtwdl state=directory, path={{ item }}, mode=0755] **********************************************************************
+2024-05-14 07:23:33,723 p=27448 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/auth)
+2024-05-14 07:23:33,917 p=27448 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/install)
+2024-05-14 07:23:34,132 p=27448 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/backup)
+2024-05-14 07:23:34,144 p=27448 u=lab-user n=ansible | TASK [install : Generate ssh keys for gtwdl path={{ bastion_cluster_base_dir }}/auth/ssh, size=4096, type=rsa] *******************************************************************************
+2024-05-14 07:23:37,213 p=27448 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 07:23:37,225 p=27448 u=lab-user n=ansible | TASK [install : Deploy the openshift install configuration for gtwdl src=install-config.yaml.j2, dest={{ bastion_cluster_base_dir }}/{{ item }}/install-config.yaml, mode=0644] **************
+2024-05-14 07:23:37,656 p=27448 u=lab-user n=ansible | changed: [localhost] => (item=install)
+2024-05-14 07:23:38,036 p=27448 u=lab-user n=ansible | changed: [localhost] => (item=backup)
+2024-05-14 07:23:38,049 p=27448 u=lab-user n=ansible | TASK [install : Install cluster gtwdl chdir={{ bastion_cluster_base_dir }}/install, _raw_params=/usr/local/bin/openshift-install create cluster --log-level=debug] ***************************
+2024-05-14 07:23:38,402 p=27448 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 07:23:38,412 p=27448 u=lab-user n=ansible | TASK [install : Check install status jid={{ __installer_results['ansible_job_id'] }}] ********************************************************************************************************
+2024-05-14 07:23:38,779 p=27448 u=lab-user n=ansible | fatal: [localhost]: FAILED! => {"ansible_job_id": "248639980054.27804", "attempts": 1, "changed": true, "cmd": "/usr/local/bin/openshift-install create cluster --log-level=debug", "delta": "0:00:00.062556", "end": "2024-05-14 07:23:38.592806", "finished": 1, "msg": "non-zero return code", "rc": 3, "results_file": "/home/lab-user/.ansible_async/248639980054.27804", "start": "2024-05-14 07:23:38.530250", "started": 1, "stderr": "level=debug msg=OpenShift Installer 4.14.25\nlevel=debug msg=Built from commit b6dcee134a2aa62ea0b00e559dc18376cf31b960\nlevel=debug msg=Fetching Metadata...\nlevel=debug msg=Loading Metadata...\nlevel=debug msg=  Loading Cluster ID...\nlevel=debug msg=    Loading Install Config...\nlevel=debug msg=      Loading SSH Key...\nlevel=debug msg=      Loading Base Domain...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Cluster Name...\nlevel=debug msg=        Loading Base Domain...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Networking...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Pull Secret...\nlevel=debug msg=      Loading Platform...\nlevel=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error converting YAML to JSON: yaml: line 52: did not find expected key", "stderr_lines": ["level=debug msg=OpenShift Installer 4.14.25", "level=debug msg=Built from commit b6dcee134a2aa62ea0b00e559dc18376cf31b960", "level=debug msg=Fetching Metadata...", "level=debug msg=Loading Metadata...", "level=debug msg=  Loading Cluster ID...", "level=debug msg=    Loading Install Config...", "level=debug msg=      Loading SSH Key...", "level=debug msg=      Loading Base Domain...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Cluster Name...", "level=debug msg=        Loading Base Domain...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Networking...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Pull Secret...", "level=debug msg=      Loading Platform...", "level=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error converting YAML to JSON: yaml: line 52: did not find expected key"], "stdout": "", "stdout_lines": []}
+2024-05-14 07:23:38,779 p=27448 u=lab-user n=ansible | ...ignoring
+2024-05-14 07:23:38,793 p=27448 u=lab-user n=ansible | TASK [install : Show logs var=__poll_results['stderr_lines']] ********************************************************************************************************************************
+2024-05-14 07:23:38,815 p=27448 u=lab-user n=ansible | ok: [localhost] => {
+    "__poll_results['stderr_lines']": [
+        "level=debug msg=OpenShift Installer 4.14.25",
+        "level=debug msg=Built from commit b6dcee134a2aa62ea0b00e559dc18376cf31b960",
+        "level=debug msg=Fetching Metadata...",
+        "level=debug msg=Loading Metadata...",
+        "level=debug msg=  Loading Cluster ID...",
+        "level=debug msg=    Loading Install Config...",
+        "level=debug msg=      Loading SSH Key...",
+        "level=debug msg=      Loading Base Domain...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Cluster Name...",
+        "level=debug msg=        Loading Base Domain...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Networking...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Pull Secret...",
+        "level=debug msg=      Loading Platform...",
+        "level=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error converting YAML to JSON: yaml: line 52: did not find expected key"
+    ]
+}
+2024-05-14 07:23:38,824 p=27448 u=lab-user n=ansible | TASK [install : Get console details _raw_params=/usr/local/bin/oc get routes -n openshift-console console -o json] ***************************************************************************
+2024-05-14 07:23:39,126 p=27448 u=lab-user n=ansible | fatal: [localhost]: FAILED! => {"changed": false, "cmd": "/usr/local/bin/oc get routes -n openshift-console console -o json", "delta": "0:00:00.097066", "end": "2024-05-14 07:23:39.101333", "msg": "non-zero return code", "rc": 1, "start": "2024-05-14 07:23:39.004267", "stderr": "W0514 07:23:39.096693   27853 loader.go:222] Config not found: /home/lab-user/ocp/gtwdl/install/auth/kubeconfig\nerror: Missing or incomplete configuration info.  Please point to an existing, complete config file:\n\n\n  1. Via the command-line flag --kubeconfig\n  2. Via the KUBECONFIG environment variable\n  3. In your home directory as ~/.kube/config\n\nTo view or setup config directly use the 'config' command.", "stderr_lines": ["W0514 07:23:39.096693   27853 loader.go:222] Config not found: /home/lab-user/ocp/gtwdl/install/auth/kubeconfig", "error: Missing or incomplete configuration info.  Please point to an existing, complete config file:", "", "", "  1. Via the command-line flag --kubeconfig", "  2. Via the KUBECONFIG environment variable", "  3. In your home directory as ~/.kube/config", "", "To view or setup config directly use the 'config' command."], "stdout": "", "stdout_lines": []}
+2024-05-14 07:23:39,127 p=27448 u=lab-user n=ansible | PLAY RECAP ***********************************************************************************************************************************************************************************
+2024-05-14 07:23:39,127 p=27448 u=lab-user n=ansible | localhost                  : ok=16   changed=7    unreachable=0    failed=1    skipped=1    rescued=0    ignored=1   
+2024-05-14 07:47:32,714 p=28027 u=lab-user n=ansible | PLAY [Prepare and install OpenShift cluster] *************************************************************************************************************************************************
+2024-05-14 07:47:32,729 p=28027 u=lab-user n=ansible | TASK [Gathering Facts ] **********************************************************************************************************************************************************************
+2024-05-14 07:47:33,661 p=28027 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:47:33,680 p=28027 u=lab-user n=ansible | TASK [prepare-os : Ensure the system is RHEL8 that=['ansible_facts[\'distribution\'] == "RedHat"', 'ansible_facts[\'distribution_major_version\'] == "8" or ansible_facts[\'distribution_major_version\'] == "9"'], fail_msg=The bastion host is not RHEL8 or RHEL9] ***
+2024-05-14 07:47:33,705 p=28027 u=lab-user n=ansible | ok: [localhost] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2024-05-14 07:47:33,714 p=28027 u=lab-user n=ansible | TASK [prepare-os : Ensure required packages installed name={{ bastion_pkgs_install | default(omit) }}, state=installed] **********************************************************************
+2024-05-14 07:47:35,180 p=28027 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:47:35,190 p=28027 u=lab-user n=ansible | TASK [prepare-os : Download OpenShift client binary src={{ item['url'] }}, dest=/usr/local/bin, remote_src=True, creates=/usr/local/bin/{{ item['name'] }}] **********************************
+2024-05-14 07:47:40,572 p=28027 u=lab-user n=ansible | changed: [localhost] => (item={'name': 'oc', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-client-linux.tar.gz'})
+2024-05-14 07:47:57,284 p=28027 u=lab-user n=ansible | changed: [localhost] => (item={'name': 'openshift-install', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-install-linux.tar.gz'})
+2024-05-14 07:47:57,295 p=28027 u=lab-user n=ansible | TASK [prepare-os : Ensure Openshift bash completions are present creates=/etc/bash_completion.d/{{ item }}, _raw_params=/usr/local/bin/{{ item }} completion bash > /etc/bash_completion.d/{{ item }}] ***
+2024-05-14 07:47:57,657 p=28027 u=lab-user n=ansible | ok: [localhost] => (item=oc)
+2024-05-14 07:47:57,855 p=28027 u=lab-user n=ansible | ok: [localhost] => (item=openshift-install)
+2024-05-14 07:47:57,867 p=28027 u=lab-user n=ansible | TASK [prepare-os : Download vCenter root certificates src=https://{{ vsphere['vcenter'] }}/certs/download.zip, dest=/tmp, remote_src=True] ***************************************************
+2024-05-14 07:47:58,968 p=28027 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:47:58,979 p=28027 u=lab-user n=ansible | TASK [prepare-os : Add vCenter certificate to anchors src=/tmp/certs/lin/, dest=/etc/pki/ca-trust/source/anchors/, mode=0644, remote_src=True] ***********************************************
+2024-05-14 07:47:59,326 p=28027 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:47:59,336 p=28027 u=lab-user n=ansible | TASK [prepare-os : Update catrust _raw_params=update-ca-trust extract] ***********************************************************************************************************************
+2024-05-14 07:48:00,333 p=28027 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 07:48:00,352 p=28027 u=lab-user n=ansible | TASK [install : Import tasks to install cluster _raw_params=install.yaml] ********************************************************************************************************************
+2024-05-14 07:48:00,391 p=28027 u=lab-user n=ansible | included: /home/lab-user/ocp/ocp-ipi-install-prep-with-ansible/roles/install/tasks/install.yaml for localhost => (item={'name': 'gtwdl', 'baseDomain': 'dynamic.redhatworkshops.io', 'networking': {'clusterNetworkcidr': '172.16.0.0/16', 'machineNetworkcidr': '192.168.18.0/24', 'serviceNetworkcidr': '172.17.0.0/16'}, 'platform': {'apiVIP': '192.168.18.201', 'ingressVIP': '192.168.18.202'}, 'controlplane': {'replicas': 3, 'cpus': 8, 'ram': 16384, 'disksizeGB': 120}, 'compute': {'replicas': 3, 'cpus': 12, 'ram': 32768, 'disksizeGB': 120}})
+2024-05-14 07:48:00,404 p=28027 u=lab-user n=ansible | TASK [install : Show values for cluster gtwdl msg=['{{ current_cluster }}']] *****************************************************************************************************************
+2024-05-14 07:48:00,424 p=28027 u=lab-user n=ansible | ok: [localhost] => {
+    "msg": [
+        {
+            "baseDomain": "dynamic.redhatworkshops.io",
+            "compute": {
+                "cpus": 12,
+                "disksizeGB": 120,
+                "ram": 32768,
+                "replicas": 3
+            },
+            "controlplane": {
+                "cpus": 8,
+                "disksizeGB": 120,
+                "ram": 16384,
+                "replicas": 3
+            },
+            "name": "gtwdl",
+            "networking": {
+                "clusterNetworkcidr": "172.16.0.0/16",
+                "machineNetworkcidr": "192.168.18.0/24",
+                "serviceNetworkcidr": "172.17.0.0/16"
+            },
+            "platform": {
+                "apiVIP": "192.168.18.201",
+                "ingressVIP": "192.168.18.202"
+            }
+        }
+    ]
+}
+2024-05-14 07:48:00,435 p=28027 u=lab-user n=ansible | TASK [install : Create cluster base directory for gtwdl path={{ bastion_cluster_base_dir }}, state=directory, mode=0755] *********************************************************************
+2024-05-14 07:48:00,779 p=28027 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 07:48:00,791 p=28027 u=lab-user n=ansible | TASK [install : Create directory structure in /home/lab-user/ocp for gtwdl state=directory, path={{ item }}, mode=0755] **********************************************************************
+2024-05-14 07:48:01,026 p=28027 u=lab-user n=ansible | ok: [localhost] => (item=/home/lab-user/ocp/gtwdl/auth)
+2024-05-14 07:48:01,223 p=28027 u=lab-user n=ansible | ok: [localhost] => (item=/home/lab-user/ocp/gtwdl/install)
+2024-05-14 07:48:01,415 p=28027 u=lab-user n=ansible | ok: [localhost] => (item=/home/lab-user/ocp/gtwdl/backup)
+2024-05-14 07:48:01,429 p=28027 u=lab-user n=ansible | TASK [install : Generate ssh keys for gtwdl path={{ bastion_cluster_base_dir }}/auth/ssh, size=4096, type=rsa] *******************************************************************************
+2024-05-14 07:48:01,437 p=28027 u=lab-user n=ansible |  [ERROR]: User interrupted execution
+
+2024-05-14 08:24:18,508 p=28679 u=lab-user n=ansible | PLAY [Prepare and install OpenShift cluster] *************************************************************************************************************************************************
+2024-05-14 08:24:18,524 p=28679 u=lab-user n=ansible | TASK [Gathering Facts ] **********************************************************************************************************************************************************************
+2024-05-14 08:24:19,470 p=28679 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:24:19,489 p=28679 u=lab-user n=ansible | TASK [prepare-os : Ensure the system is RHEL8 that=['ansible_facts[\'distribution\'] == "RedHat"', 'ansible_facts[\'distribution_major_version\'] == "8" or ansible_facts[\'distribution_major_version\'] == "9"'], fail_msg=The bastion host is not RHEL8 or RHEL9] ***
+2024-05-14 08:24:19,520 p=28679 u=lab-user n=ansible | ok: [localhost] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2024-05-14 08:24:19,530 p=28679 u=lab-user n=ansible | TASK [prepare-os : Ensure required packages installed name={{ bastion_pkgs_install | default(omit) }}, state=installed] **********************************************************************
+2024-05-14 08:24:20,966 p=28679 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:24:20,975 p=28679 u=lab-user n=ansible | TASK [prepare-os : Download OpenShift client binary src={{ item['url'] }}, dest=/usr/local/bin, remote_src=True, creates=/usr/local/bin/{{ item['name'] }}] **********************************
+2024-05-14 08:24:21,058 p=28679 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'oc', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-client-linux.tar.gz'}) 
+2024-05-14 08:24:21,105 p=28679 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'openshift-install', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-install-linux.tar.gz'}) 
+2024-05-14 08:24:21,115 p=28679 u=lab-user n=ansible | TASK [prepare-os : Ensure Openshift bash completions are present creates=/etc/bash_completion.d/{{ item }}, _raw_params=/usr/local/bin/{{ item }} completion bash > /etc/bash_completion.d/{{ item }}] ***
+2024-05-14 08:24:21,423 p=28679 u=lab-user n=ansible | ok: [localhost] => (item=oc)
+2024-05-14 08:24:21,623 p=28679 u=lab-user n=ansible | ok: [localhost] => (item=openshift-install)
+2024-05-14 08:24:21,635 p=28679 u=lab-user n=ansible | TASK [prepare-os : Download vCenter root certificates src=https://{{ vsphere['vcenter'] }}/certs/download.zip, dest=/tmp, remote_src=True] ***************************************************
+2024-05-14 08:24:22,960 p=28679 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:24:22,970 p=28679 u=lab-user n=ansible | TASK [prepare-os : Add vCenter certificate to anchors src=/tmp/certs/lin/, dest=/etc/pki/ca-trust/source/anchors/, mode=0644, remote_src=True] ***********************************************
+2024-05-14 08:24:23,322 p=28679 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:24:23,331 p=28679 u=lab-user n=ansible | TASK [prepare-os : Update catrust _raw_params=update-ca-trust extract] ***********************************************************************************************************************
+2024-05-14 08:24:24,273 p=28679 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:24:24,293 p=28679 u=lab-user n=ansible | TASK [install : Import tasks to install cluster _raw_params=install.yaml] ********************************************************************************************************************
+2024-05-14 08:24:24,330 p=28679 u=lab-user n=ansible | included: /home/lab-user/ocp/ocp-ipi-install-prep-with-ansible/roles/install/tasks/install.yaml for localhost => (item={'name': 'gtwdl', 'baseDomain': 'dynamic.redhatworkshops.io', 'networking': {'clusterNetworkcidr': '172.16.0.0/16', 'machineNetworkcidr': '192.168.18.0/24', 'serviceNetworkcidr': '172.17.0.0/16'}, 'platform': {'apiVIP': '192.168.18.201', 'ingressVIP': '192.168.18.202'}, 'controlplane': {'replicas': 3, 'cpus': 8, 'ram': 16384, 'disksizeGB': 120}, 'compute': {'replicas': 3, 'cpus': 12, 'ram': 32768, 'disksizeGB': 120}})
+2024-05-14 08:24:24,343 p=28679 u=lab-user n=ansible | TASK [install : Show values for cluster gtwdl msg=['{{ current_cluster }}']] *****************************************************************************************************************
+2024-05-14 08:24:24,363 p=28679 u=lab-user n=ansible | ok: [localhost] => {
+    "msg": [
+        {
+            "baseDomain": "dynamic.redhatworkshops.io",
+            "compute": {
+                "cpus": 12,
+                "disksizeGB": 120,
+                "ram": 32768,
+                "replicas": 3
+            },
+            "controlplane": {
+                "cpus": 8,
+                "disksizeGB": 120,
+                "ram": 16384,
+                "replicas": 3
+            },
+            "name": "gtwdl",
+            "networking": {
+                "clusterNetworkcidr": "172.16.0.0/16",
+                "machineNetworkcidr": "192.168.18.0/24",
+                "serviceNetworkcidr": "172.17.0.0/16"
+            },
+            "platform": {
+                "apiVIP": "192.168.18.201",
+                "ingressVIP": "192.168.18.202"
+            }
+        }
+    ]
+}
+2024-05-14 08:24:24,380 p=28679 u=lab-user n=ansible | TASK [install : Create cluster base directory for gtwdl path={{ bastion_cluster_base_dir }}, state=directory, mode=0755] *********************************************************************
+2024-05-14 08:24:24,735 p=28679 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:24:24,746 p=28679 u=lab-user n=ansible | TASK [install : Create directory structure in /home/lab-user/ocp for gtwdl state=directory, path={{ item }}, mode=0755] **********************************************************************
+2024-05-14 08:24:24,971 p=28679 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/auth)
+2024-05-14 08:24:25,169 p=28679 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/install)
+2024-05-14 08:24:25,363 p=28679 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/backup)
+2024-05-14 08:24:25,375 p=28679 u=lab-user n=ansible | TASK [install : Generate ssh keys for gtwdl path={{ bastion_cluster_base_dir }}/auth/ssh, size=4096, type=rsa] *******************************************************************************
+2024-05-14 08:24:33,456 p=28679 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:24:33,467 p=28679 u=lab-user n=ansible | TASK [install : Deploy the openshift install configuration for gtwdl src=install-config.yaml.j2, dest={{ bastion_cluster_base_dir }}/{{ item }}/install-config.yaml, mode=0644] **************
+2024-05-14 08:24:33,901 p=28679 u=lab-user n=ansible | changed: [localhost] => (item=install)
+2024-05-14 08:24:34,290 p=28679 u=lab-user n=ansible | changed: [localhost] => (item=backup)
+2024-05-14 08:24:34,303 p=28679 u=lab-user n=ansible | TASK [install : Install cluster gtwdl chdir={{ bastion_cluster_base_dir }}/install, _raw_params=/usr/local/bin/openshift-install create cluster --log-level=debug] ***************************
+2024-05-14 08:24:34,668 p=28679 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:24:34,678 p=28679 u=lab-user n=ansible | TASK [install : Check install status jid={{ __installer_results['ansible_job_id'] }}] ********************************************************************************************************
+2024-05-14 08:24:35,054 p=28679 u=lab-user n=ansible | fatal: [localhost]: FAILED! => {"ansible_job_id": "819566775115.29035", "attempts": 1, "changed": true, "cmd": "/usr/local/bin/openshift-install create cluster --log-level=debug", "delta": "0:00:00.072847", "end": "2024-05-14 08:24:34.868292", "finished": 1, "msg": "non-zero return code", "rc": 3, "results_file": "/home/lab-user/.ansible_async/819566775115.29035", "start": "2024-05-14 08:24:34.795445", "started": 1, "stderr": "level=debug msg=OpenShift Installer 4.15.12\nlevel=debug msg=Built from commit e29d44b3b0277970c8c3a1f0225ef0f943bf9b9b\nlevel=debug msg=Fetching Metadata...\nlevel=debug msg=Loading Metadata...\nlevel=debug msg=  Loading Cluster ID...\nlevel=debug msg=    Loading Install Config...\nlevel=debug msg=      Loading SSH Key...\nlevel=debug msg=      Loading Base Domain...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Cluster Name...\nlevel=debug msg=        Loading Base Domain...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Pull Secret...\nlevel=debug msg=      Loading Platform...\nlevel=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error converting YAML to JSON: yaml: line 65: did not find expected key", "stderr_lines": ["level=debug msg=OpenShift Installer 4.15.12", "level=debug msg=Built from commit e29d44b3b0277970c8c3a1f0225ef0f943bf9b9b", "level=debug msg=Fetching Metadata...", "level=debug msg=Loading Metadata...", "level=debug msg=  Loading Cluster ID...", "level=debug msg=    Loading Install Config...", "level=debug msg=      Loading SSH Key...", "level=debug msg=      Loading Base Domain...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Cluster Name...", "level=debug msg=        Loading Base Domain...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Pull Secret...", "level=debug msg=      Loading Platform...", "level=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error converting YAML to JSON: yaml: line 65: did not find expected key"], "stdout": "", "stdout_lines": []}
+2024-05-14 08:24:35,054 p=28679 u=lab-user n=ansible | ...ignoring
+2024-05-14 08:24:35,067 p=28679 u=lab-user n=ansible | TASK [install : Show logs var=__poll_results['stderr_lines']] ********************************************************************************************************************************
+2024-05-14 08:24:35,091 p=28679 u=lab-user n=ansible | ok: [localhost] => {
+    "__poll_results['stderr_lines']": [
+        "level=debug msg=OpenShift Installer 4.15.12",
+        "level=debug msg=Built from commit e29d44b3b0277970c8c3a1f0225ef0f943bf9b9b",
+        "level=debug msg=Fetching Metadata...",
+        "level=debug msg=Loading Metadata...",
+        "level=debug msg=  Loading Cluster ID...",
+        "level=debug msg=    Loading Install Config...",
+        "level=debug msg=      Loading SSH Key...",
+        "level=debug msg=      Loading Base Domain...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Cluster Name...",
+        "level=debug msg=        Loading Base Domain...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Pull Secret...",
+        "level=debug msg=      Loading Platform...",
+        "level=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error converting YAML to JSON: yaml: line 65: did not find expected key"
+    ]
+}
+2024-05-14 08:24:35,101 p=28679 u=lab-user n=ansible | TASK [install : Get console details _raw_params=/usr/local/bin/oc get routes -n openshift-console console -o json] ***************************************************************************
+2024-05-14 08:24:35,448 p=28679 u=lab-user n=ansible | fatal: [localhost]: FAILED! => {"changed": false, "cmd": "/usr/local/bin/oc get routes -n openshift-console console -o json", "delta": "0:00:00.128070", "end": "2024-05-14 08:24:35.418648", "msg": "non-zero return code", "rc": 1, "start": "2024-05-14 08:24:35.290578", "stderr": "error: Missing or incomplete configuration info.  Please point to an existing, complete config file:\n\n\n  1. Via the command-line flag --kubeconfig\n  2. Via the KUBECONFIG environment variable\n  3. In your home directory as ~/.kube/config\n\nTo view or setup config directly use the 'config' command.", "stderr_lines": ["error: Missing or incomplete configuration info.  Please point to an existing, complete config file:", "", "", "  1. Via the command-line flag --kubeconfig", "  2. Via the KUBECONFIG environment variable", "  3. In your home directory as ~/.kube/config", "", "To view or setup config directly use the 'config' command."], "stdout": "", "stdout_lines": []}
+2024-05-14 08:24:35,450 p=28679 u=lab-user n=ansible | PLAY RECAP ***********************************************************************************************************************************************************************************
+2024-05-14 08:24:35,450 p=28679 u=lab-user n=ansible | localhost                  : ok=16   changed=7    unreachable=0    failed=1    skipped=1    rescued=0    ignored=1   
+2024-05-14 08:35:36,514 p=29407 u=lab-user n=ansible | PLAY [Prepare and install OpenShift cluster] *************************************************************************************************************************************************
+2024-05-14 08:35:36,529 p=29407 u=lab-user n=ansible | TASK [Gathering Facts ] **********************************************************************************************************************************************************************
+2024-05-14 08:35:37,441 p=29407 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:35:37,461 p=29407 u=lab-user n=ansible | TASK [prepare-os : Ensure the system is RHEL8 that=['ansible_facts[\'distribution\'] == "RedHat"', 'ansible_facts[\'distribution_major_version\'] == "8" or ansible_facts[\'distribution_major_version\'] == "9"'], fail_msg=The bastion host is not RHEL8 or RHEL9] ***
+2024-05-14 08:35:37,485 p=29407 u=lab-user n=ansible | ok: [localhost] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2024-05-14 08:35:37,495 p=29407 u=lab-user n=ansible | TASK [prepare-os : Ensure required packages installed name={{ bastion_pkgs_install | default(omit) }}, state=installed] **********************************************************************
+2024-05-14 08:35:38,924 p=29407 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:35:38,934 p=29407 u=lab-user n=ansible | TASK [prepare-os : Download OpenShift client binary src={{ item['url'] }}, dest=/usr/local/bin, remote_src=True, creates=/usr/local/bin/{{ item['name'] }}] **********************************
+2024-05-14 08:35:39,032 p=29407 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'oc', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-client-linux.tar.gz'}) 
+2024-05-14 08:35:39,085 p=29407 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'openshift-install', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-install-linux.tar.gz'}) 
+2024-05-14 08:35:39,096 p=29407 u=lab-user n=ansible | TASK [prepare-os : Ensure Openshift bash completions are present creates=/etc/bash_completion.d/{{ item }}, _raw_params=/usr/local/bin/{{ item }} completion bash > /etc/bash_completion.d/{{ item }}] ***
+2024-05-14 08:35:39,442 p=29407 u=lab-user n=ansible | ok: [localhost] => (item=oc)
+2024-05-14 08:35:39,657 p=29407 u=lab-user n=ansible | ok: [localhost] => (item=openshift-install)
+2024-05-14 08:35:39,667 p=29407 u=lab-user n=ansible | TASK [prepare-os : Download vCenter root certificates src=https://{{ vsphere['vcenter'] }}/certs/download.zip, dest=/tmp, remote_src=True] ***************************************************
+2024-05-14 08:35:41,091 p=29407 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:35:41,102 p=29407 u=lab-user n=ansible | TASK [prepare-os : Add vCenter certificate to anchors src=/tmp/certs/lin/, dest=/etc/pki/ca-trust/source/anchors/, mode=0644, remote_src=True] ***********************************************
+2024-05-14 08:35:41,479 p=29407 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:35:41,489 p=29407 u=lab-user n=ansible | TASK [prepare-os : Update catrust _raw_params=update-ca-trust extract] ***********************************************************************************************************************
+2024-05-14 08:35:42,562 p=29407 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:35:42,580 p=29407 u=lab-user n=ansible | TASK [install : Import tasks to install cluster _raw_params=install.yaml] ********************************************************************************************************************
+2024-05-14 08:35:42,624 p=29407 u=lab-user n=ansible | included: /home/lab-user/ocp/ocp-ipi-install-prep-with-ansible/roles/install/tasks/install.yaml for localhost => (item={'name': 'gtwdl', 'baseDomain': 'dynamic.redhatworkshops.io', 'networking': {'clusterNetworkcidr': '172.16.0.0/16', 'machineNetworkcidr': '192.168.18.0/24', 'serviceNetworkcidr': '172.17.0.0/16'}, 'platform': {'apiVIP': '192.168.18.201', 'ingressVIP': '192.168.18.202'}, 'controlplane': {'replicas': 3, 'cpus': 8, 'ram': 16384, 'disksizeGB': 120}, 'compute': {'replicas': 3, 'cpus': 12, 'ram': 32768, 'disksizeGB': 120}})
+2024-05-14 08:35:42,637 p=29407 u=lab-user n=ansible | TASK [install : Show values for cluster gtwdl msg=['{{ current_cluster }}']] *****************************************************************************************************************
+2024-05-14 08:35:42,664 p=29407 u=lab-user n=ansible | ok: [localhost] => {
+    "msg": [
+        {
+            "baseDomain": "dynamic.redhatworkshops.io",
+            "compute": {
+                "cpus": 12,
+                "disksizeGB": 120,
+                "ram": 32768,
+                "replicas": 3
+            },
+            "controlplane": {
+                "cpus": 8,
+                "disksizeGB": 120,
+                "ram": 16384,
+                "replicas": 3
+            },
+            "name": "gtwdl",
+            "networking": {
+                "clusterNetworkcidr": "172.16.0.0/16",
+                "machineNetworkcidr": "192.168.18.0/24",
+                "serviceNetworkcidr": "172.17.0.0/16"
+            },
+            "platform": {
+                "apiVIP": "192.168.18.201",
+                "ingressVIP": "192.168.18.202"
+            }
+        }
+    ]
+}
+2024-05-14 08:35:42,674 p=29407 u=lab-user n=ansible | TASK [install : Create cluster base directory for gtwdl path={{ bastion_cluster_base_dir }}, state=directory, mode=0755] *********************************************************************
+2024-05-14 08:35:43,027 p=29407 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:35:43,038 p=29407 u=lab-user n=ansible | TASK [install : Create directory structure in /home/lab-user/ocp for gtwdl state=directory, path={{ item }}, mode=0755] **********************************************************************
+2024-05-14 08:35:43,271 p=29407 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/auth)
+2024-05-14 08:35:43,465 p=29407 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/install)
+2024-05-14 08:35:43,650 p=29407 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/backup)
+2024-05-14 08:35:43,661 p=29407 u=lab-user n=ansible | TASK [install : Generate ssh keys for gtwdl path={{ bastion_cluster_base_dir }}/auth/ssh, size=4096, type=rsa] *******************************************************************************
+2024-05-14 08:35:45,003 p=29407 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:35:45,015 p=29407 u=lab-user n=ansible | TASK [install : Deploy the openshift install configuration for gtwdl src=install-config.yaml.j2, dest={{ bastion_cluster_base_dir }}/{{ item }}/install-config.yaml, mode=0644] **************
+2024-05-14 08:35:45,457 p=29407 u=lab-user n=ansible | changed: [localhost] => (item=install)
+2024-05-14 08:35:45,832 p=29407 u=lab-user n=ansible | changed: [localhost] => (item=backup)
+2024-05-14 08:35:45,844 p=29407 u=lab-user n=ansible | TASK [install : Install cluster gtwdl chdir={{ bastion_cluster_base_dir }}/install, _raw_params=/usr/local/bin/openshift-install create cluster --log-level=debug] ***************************
+2024-05-14 08:35:46,200 p=29407 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:35:46,211 p=29407 u=lab-user n=ansible | TASK [install : Check install status jid={{ __installer_results['ansible_job_id'] }}] ********************************************************************************************************
+2024-05-14 08:35:46,589 p=29407 u=lab-user n=ansible | fatal: [localhost]: FAILED! => {"ansible_job_id": "194597306420.29762", "attempts": 1, "changed": true, "cmd": "/usr/local/bin/openshift-install create cluster --log-level=debug", "delta": "0:00:00.076717", "end": "2024-05-14 08:35:46.406818", "finished": 1, "msg": "non-zero return code", "rc": 3, "results_file": "/home/lab-user/.ansible_async/194597306420.29762", "start": "2024-05-14 08:35:46.330101", "started": 1, "stderr": "level=debug msg=OpenShift Installer 4.15.12\nlevel=debug msg=Built from commit e29d44b3b0277970c8c3a1f0225ef0f943bf9b9b\nlevel=debug msg=Fetching Metadata...\nlevel=debug msg=Loading Metadata...\nlevel=debug msg=  Loading Cluster ID...\nlevel=debug msg=    Loading Install Config...\nlevel=debug msg=      Loading SSH Key...\nlevel=debug msg=      Loading Base Domain...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Cluster Name...\nlevel=debug msg=        Loading Base Domain...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Pull Secret...\nlevel=debug msg=      Loading Platform...\nlevel=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error unmarshaling JSON: while decoding JSON: json: cannot unmarshal object into Go struct field InstallConfig.pullSecret of type string", "stderr_lines": ["level=debug msg=OpenShift Installer 4.15.12", "level=debug msg=Built from commit e29d44b3b0277970c8c3a1f0225ef0f943bf9b9b", "level=debug msg=Fetching Metadata...", "level=debug msg=Loading Metadata...", "level=debug msg=  Loading Cluster ID...", "level=debug msg=    Loading Install Config...", "level=debug msg=      Loading SSH Key...", "level=debug msg=      Loading Base Domain...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Cluster Name...", "level=debug msg=        Loading Base Domain...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Pull Secret...", "level=debug msg=      Loading Platform...", "level=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error unmarshaling JSON: while decoding JSON: json: cannot unmarshal object into Go struct field InstallConfig.pullSecret of type string"], "stdout": "", "stdout_lines": []}
+2024-05-14 08:35:46,589 p=29407 u=lab-user n=ansible | ...ignoring
+2024-05-14 08:35:46,599 p=29407 u=lab-user n=ansible | TASK [install : Show logs var=__poll_results['stderr_lines']] ********************************************************************************************************************************
+2024-05-14 08:35:46,620 p=29407 u=lab-user n=ansible | ok: [localhost] => {
+    "__poll_results['stderr_lines']": [
+        "level=debug msg=OpenShift Installer 4.15.12",
+        "level=debug msg=Built from commit e29d44b3b0277970c8c3a1f0225ef0f943bf9b9b",
+        "level=debug msg=Fetching Metadata...",
+        "level=debug msg=Loading Metadata...",
+        "level=debug msg=  Loading Cluster ID...",
+        "level=debug msg=    Loading Install Config...",
+        "level=debug msg=      Loading SSH Key...",
+        "level=debug msg=      Loading Base Domain...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Cluster Name...",
+        "level=debug msg=        Loading Base Domain...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Pull Secret...",
+        "level=debug msg=      Loading Platform...",
+        "level=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error unmarshaling JSON: while decoding JSON: json: cannot unmarshal object into Go struct field InstallConfig.pullSecret of type string"
+    ]
+}
+2024-05-14 08:35:46,637 p=29407 u=lab-user n=ansible | TASK [install : Get console details _raw_params=/usr/local/bin/oc get routes -n openshift-console console -o json] ***************************************************************************
+2024-05-14 08:35:46,946 p=29407 u=lab-user n=ansible | fatal: [localhost]: FAILED! => {"changed": false, "cmd": "/usr/local/bin/oc get routes -n openshift-console console -o json", "delta": "0:00:00.108690", "end": "2024-05-14 08:35:46.921094", "msg": "non-zero return code", "rc": 1, "start": "2024-05-14 08:35:46.812404", "stderr": "error: Missing or incomplete configuration info.  Please point to an existing, complete config file:\n\n\n  1. Via the command-line flag --kubeconfig\n  2. Via the KUBECONFIG environment variable\n  3. In your home directory as ~/.kube/config\n\nTo view or setup config directly use the 'config' command.", "stderr_lines": ["error: Missing or incomplete configuration info.  Please point to an existing, complete config file:", "", "", "  1. Via the command-line flag --kubeconfig", "  2. Via the KUBECONFIG environment variable", "  3. In your home directory as ~/.kube/config", "", "To view or setup config directly use the 'config' command."], "stdout": "", "stdout_lines": []}
+2024-05-14 08:35:46,948 p=29407 u=lab-user n=ansible | PLAY RECAP ***********************************************************************************************************************************************************************************
+2024-05-14 08:35:46,948 p=29407 u=lab-user n=ansible | localhost                  : ok=16   changed=7    unreachable=0    failed=1    skipped=1    rescued=0    ignored=1   
+2024-05-14 08:39:03,061 p=29896 u=lab-user n=ansible | PLAY [Prepare and install OpenShift cluster] *************************************************************************************************************************************************
+2024-05-14 08:39:03,077 p=29896 u=lab-user n=ansible | TASK [Gathering Facts ] **********************************************************************************************************************************************************************
+2024-05-14 08:39:04,006 p=29896 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:39:04,025 p=29896 u=lab-user n=ansible | TASK [prepare-os : Ensure the system is RHEL8 that=['ansible_facts[\'distribution\'] == "RedHat"', 'ansible_facts[\'distribution_major_version\'] == "8" or ansible_facts[\'distribution_major_version\'] == "9"'], fail_msg=The bastion host is not RHEL8 or RHEL9] ***
+2024-05-14 08:39:04,050 p=29896 u=lab-user n=ansible | ok: [localhost] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2024-05-14 08:39:04,060 p=29896 u=lab-user n=ansible | TASK [prepare-os : Ensure required packages installed name={{ bastion_pkgs_install | default(omit) }}, state=installed] **********************************************************************
+2024-05-14 08:39:05,473 p=29896 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:39:05,483 p=29896 u=lab-user n=ansible | TASK [prepare-os : Download OpenShift client binary src={{ item['url'] }}, dest=/usr/local/bin, remote_src=True, creates=/usr/local/bin/{{ item['name'] }}] **********************************
+2024-05-14 08:39:05,595 p=29896 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'oc', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-client-linux.tar.gz'}) 
+2024-05-14 08:39:05,654 p=29896 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'openshift-install', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-install-linux.tar.gz'}) 
+2024-05-14 08:39:05,665 p=29896 u=lab-user n=ansible | TASK [prepare-os : Ensure Openshift bash completions are present creates=/etc/bash_completion.d/{{ item }}, _raw_params=/usr/local/bin/{{ item }} completion bash > /etc/bash_completion.d/{{ item }}] ***
+2024-05-14 08:39:06,010 p=29896 u=lab-user n=ansible | ok: [localhost] => (item=oc)
+2024-05-14 08:39:06,219 p=29896 u=lab-user n=ansible | ok: [localhost] => (item=openshift-install)
+2024-05-14 08:39:06,230 p=29896 u=lab-user n=ansible | TASK [prepare-os : Download vCenter root certificates src=https://{{ vsphere['vcenter'] }}/certs/download.zip, dest=/tmp, remote_src=True] ***************************************************
+2024-05-14 08:39:07,639 p=29896 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:39:07,649 p=29896 u=lab-user n=ansible | TASK [prepare-os : Add vCenter certificate to anchors src=/tmp/certs/lin/, dest=/etc/pki/ca-trust/source/anchors/, mode=0644, remote_src=True] ***********************************************
+2024-05-14 08:39:08,039 p=29896 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:39:08,049 p=29896 u=lab-user n=ansible | TASK [prepare-os : Update catrust _raw_params=update-ca-trust extract] ***********************************************************************************************************************
+2024-05-14 08:39:09,018 p=29896 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:39:09,036 p=29896 u=lab-user n=ansible | TASK [install : Import tasks to install cluster _raw_params=install.yaml] ********************************************************************************************************************
+2024-05-14 08:39:09,073 p=29896 u=lab-user n=ansible | included: /home/lab-user/ocp/ocp-ipi-install-prep-with-ansible/roles/install/tasks/install.yaml for localhost => (item={'name': 'gtwdl', 'baseDomain': 'dynamic.redhatworkshops.io', 'networking': {'clusterNetworkcidr': '172.16.0.0/16', 'machineNetworkcidr': '192.168.18.0/24', 'serviceNetworkcidr': '172.17.0.0/16'}, 'platform': {'apiVIP': '192.168.18.201', 'ingressVIP': '192.168.18.202'}, 'controlplane': {'replicas': 3, 'cpus': 8, 'ram': 16384, 'disksizeGB': 120}, 'compute': {'replicas': 3, 'cpus': 12, 'ram': 32768, 'disksizeGB': 120}})
+2024-05-14 08:39:09,085 p=29896 u=lab-user n=ansible | TASK [install : Show values for cluster gtwdl msg=['{{ current_cluster }}']] *****************************************************************************************************************
+2024-05-14 08:39:09,105 p=29896 u=lab-user n=ansible | ok: [localhost] => {
+    "msg": [
+        {
+            "baseDomain": "dynamic.redhatworkshops.io",
+            "compute": {
+                "cpus": 12,
+                "disksizeGB": 120,
+                "ram": 32768,
+                "replicas": 3
+            },
+            "controlplane": {
+                "cpus": 8,
+                "disksizeGB": 120,
+                "ram": 16384,
+                "replicas": 3
+            },
+            "name": "gtwdl",
+            "networking": {
+                "clusterNetworkcidr": "172.16.0.0/16",
+                "machineNetworkcidr": "192.168.18.0/24",
+                "serviceNetworkcidr": "172.17.0.0/16"
+            },
+            "platform": {
+                "apiVIP": "192.168.18.201",
+                "ingressVIP": "192.168.18.202"
+            }
+        }
+    ]
+}
+2024-05-14 08:39:09,115 p=29896 u=lab-user n=ansible | TASK [install : Create cluster base directory for gtwdl path={{ bastion_cluster_base_dir }}, state=directory, mode=0755] *********************************************************************
+2024-05-14 08:39:09,464 p=29896 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:39:09,475 p=29896 u=lab-user n=ansible | TASK [install : Create directory structure in /home/lab-user/ocp for gtwdl state=directory, path={{ item }}, mode=0755] **********************************************************************
+2024-05-14 08:39:09,702 p=29896 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/auth)
+2024-05-14 08:39:09,901 p=29896 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/install)
+2024-05-14 08:39:10,107 p=29896 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/backup)
+2024-05-14 08:39:10,120 p=29896 u=lab-user n=ansible | TASK [install : Generate ssh keys for gtwdl path={{ bastion_cluster_base_dir }}/auth/ssh, size=4096, type=rsa] *******************************************************************************
+2024-05-14 08:39:12,801 p=29896 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:39:12,813 p=29896 u=lab-user n=ansible | TASK [install : Deploy the openshift install configuration for gtwdl src=install-config.yaml.j2, dest={{ bastion_cluster_base_dir }}/{{ item }}/install-config.yaml, mode=0644] **************
+2024-05-14 08:39:13,255 p=29896 u=lab-user n=ansible | changed: [localhost] => (item=install)
+2024-05-14 08:39:13,642 p=29896 u=lab-user n=ansible | changed: [localhost] => (item=backup)
+2024-05-14 08:39:13,655 p=29896 u=lab-user n=ansible | TASK [install : Install cluster gtwdl chdir={{ bastion_cluster_base_dir }}/install, _raw_params=/usr/local/bin/openshift-install create cluster --log-level=debug] ***************************
+2024-05-14 08:39:14,002 p=29896 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:39:14,012 p=29896 u=lab-user n=ansible | TASK [install : Check install status jid={{ __installer_results['ansible_job_id'] }}] ********************************************************************************************************
+2024-05-14 08:39:14,403 p=29896 u=lab-user n=ansible | fatal: [localhost]: FAILED! => {"ansible_job_id": "918996009140.30250", "attempts": 1, "changed": true, "cmd": "/usr/local/bin/openshift-install create cluster --log-level=debug", "delta": "0:00:00.073899", "end": "2024-05-14 08:39:14.199797", "finished": 1, "msg": "non-zero return code", "rc": 3, "results_file": "/home/lab-user/.ansible_async/918996009140.30250", "start": "2024-05-14 08:39:14.125898", "started": 1, "stderr": "level=debug msg=OpenShift Installer 4.15.12\nlevel=debug msg=Built from commit e29d44b3b0277970c8c3a1f0225ef0f943bf9b9b\nlevel=debug msg=Fetching Metadata...\nlevel=debug msg=Loading Metadata...\nlevel=debug msg=  Loading Cluster ID...\nlevel=debug msg=    Loading Install Config...\nlevel=debug msg=      Loading SSH Key...\nlevel=debug msg=      Loading Base Domain...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Cluster Name...\nlevel=debug msg=        Loading Base Domain...\nlevel=debug msg=        Loading Platform...\nlevel=debug msg=      Loading Pull Secret...\nlevel=debug msg=      Loading Platform...\nlevel=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error unmarshaling JSON: while decoding JSON: json: cannot unmarshal object into Go struct field InstallConfig.pullSecret of type string", "stderr_lines": ["level=debug msg=OpenShift Installer 4.15.12", "level=debug msg=Built from commit e29d44b3b0277970c8c3a1f0225ef0f943bf9b9b", "level=debug msg=Fetching Metadata...", "level=debug msg=Loading Metadata...", "level=debug msg=  Loading Cluster ID...", "level=debug msg=    Loading Install Config...", "level=debug msg=      Loading SSH Key...", "level=debug msg=      Loading Base Domain...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Cluster Name...", "level=debug msg=        Loading Base Domain...", "level=debug msg=        Loading Platform...", "level=debug msg=      Loading Pull Secret...", "level=debug msg=      Loading Platform...", "level=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error unmarshaling JSON: while decoding JSON: json: cannot unmarshal object into Go struct field InstallConfig.pullSecret of type string"], "stdout": "", "stdout_lines": []}
+2024-05-14 08:39:14,404 p=29896 u=lab-user n=ansible | ...ignoring
+2024-05-14 08:39:14,414 p=29896 u=lab-user n=ansible | TASK [install : Show logs var=__poll_results['stderr_lines']] ********************************************************************************************************************************
+2024-05-14 08:39:14,442 p=29896 u=lab-user n=ansible | ok: [localhost] => {
+    "__poll_results['stderr_lines']": [
+        "level=debug msg=OpenShift Installer 4.15.12",
+        "level=debug msg=Built from commit e29d44b3b0277970c8c3a1f0225ef0f943bf9b9b",
+        "level=debug msg=Fetching Metadata...",
+        "level=debug msg=Loading Metadata...",
+        "level=debug msg=  Loading Cluster ID...",
+        "level=debug msg=    Loading Install Config...",
+        "level=debug msg=      Loading SSH Key...",
+        "level=debug msg=      Loading Base Domain...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Cluster Name...",
+        "level=debug msg=        Loading Base Domain...",
+        "level=debug msg=        Loading Platform...",
+        "level=debug msg=      Loading Pull Secret...",
+        "level=debug msg=      Loading Platform...",
+        "level=error msg=failed to fetch Metadata: failed to load asset \"Install Config\": failed to create install config: failed to unmarshal install-config.yaml: error unmarshaling JSON: while decoding JSON: json: cannot unmarshal object into Go struct field InstallConfig.pullSecret of type string"
+    ]
+}
+2024-05-14 08:39:14,452 p=29896 u=lab-user n=ansible | TASK [install : Get console details _raw_params=/usr/local/bin/oc get routes -n openshift-console console -o json] ***************************************************************************
+2024-05-14 08:39:14,760 p=29896 u=lab-user n=ansible | fatal: [localhost]: FAILED! => {"changed": false, "cmd": "/usr/local/bin/oc get routes -n openshift-console console -o json", "delta": "0:00:00.103435", "end": "2024-05-14 08:39:14.737159", "msg": "non-zero return code", "rc": 1, "start": "2024-05-14 08:39:14.633724", "stderr": "error: Missing or incomplete configuration info.  Please point to an existing, complete config file:\n\n\n  1. Via the command-line flag --kubeconfig\n  2. Via the KUBECONFIG environment variable\n  3. In your home directory as ~/.kube/config\n\nTo view or setup config directly use the 'config' command.", "stderr_lines": ["error: Missing or incomplete configuration info.  Please point to an existing, complete config file:", "", "", "  1. Via the command-line flag --kubeconfig", "  2. Via the KUBECONFIG environment variable", "  3. In your home directory as ~/.kube/config", "", "To view or setup config directly use the 'config' command."], "stdout": "", "stdout_lines": []}
+2024-05-14 08:39:14,761 p=29896 u=lab-user n=ansible | PLAY RECAP ***********************************************************************************************************************************************************************************
+2024-05-14 08:39:14,762 p=29896 u=lab-user n=ansible | localhost                  : ok=16   changed=7    unreachable=0    failed=1    skipped=1    rescued=0    ignored=1   
+2024-05-14 08:40:29,738 p=30324 u=lab-user n=ansible | PLAY [Prepare and install OpenShift cluster] *************************************************************************************************************************************************
+2024-05-14 08:40:29,754 p=30324 u=lab-user n=ansible | TASK [Gathering Facts ] **********************************************************************************************************************************************************************
+2024-05-14 08:40:30,712 p=30324 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:40:30,731 p=30324 u=lab-user n=ansible | TASK [prepare-os : Ensure the system is RHEL8 that=['ansible_facts[\'distribution\'] == "RedHat"', 'ansible_facts[\'distribution_major_version\'] == "8" or ansible_facts[\'distribution_major_version\'] == "9"'], fail_msg=The bastion host is not RHEL8 or RHEL9] ***
+2024-05-14 08:40:30,755 p=30324 u=lab-user n=ansible | ok: [localhost] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2024-05-14 08:40:30,764 p=30324 u=lab-user n=ansible | TASK [prepare-os : Ensure required packages installed name={{ bastion_pkgs_install | default(omit) }}, state=installed] **********************************************************************
+2024-05-14 08:40:32,201 p=30324 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:40:32,211 p=30324 u=lab-user n=ansible | TASK [prepare-os : Download OpenShift client binary src={{ item['url'] }}, dest=/usr/local/bin, remote_src=True, creates=/usr/local/bin/{{ item['name'] }}] **********************************
+2024-05-14 08:40:32,303 p=30324 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'oc', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-client-linux.tar.gz'}) 
+2024-05-14 08:40:32,351 p=30324 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'openshift-install', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-install-linux.tar.gz'}) 
+2024-05-14 08:40:32,362 p=30324 u=lab-user n=ansible | TASK [prepare-os : Ensure Openshift bash completions are present creates=/etc/bash_completion.d/{{ item }}, _raw_params=/usr/local/bin/{{ item }} completion bash > /etc/bash_completion.d/{{ item }}] ***
+2024-05-14 08:40:32,684 p=30324 u=lab-user n=ansible | ok: [localhost] => (item=oc)
+2024-05-14 08:40:32,893 p=30324 u=lab-user n=ansible | ok: [localhost] => (item=openshift-install)
+2024-05-14 08:40:32,903 p=30324 u=lab-user n=ansible | TASK [prepare-os : Download vCenter root certificates src=https://{{ vsphere['vcenter'] }}/certs/download.zip, dest=/tmp, remote_src=True] ***************************************************
+2024-05-14 08:40:34,240 p=30324 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:40:34,250 p=30324 u=lab-user n=ansible | TASK [prepare-os : Add vCenter certificate to anchors src=/tmp/certs/lin/, dest=/etc/pki/ca-trust/source/anchors/, mode=0644, remote_src=True] ***********************************************
+2024-05-14 08:40:34,612 p=30324 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:40:34,622 p=30324 u=lab-user n=ansible | TASK [prepare-os : Update catrust _raw_params=update-ca-trust extract] ***********************************************************************************************************************
+2024-05-14 08:40:35,680 p=30324 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:40:35,699 p=30324 u=lab-user n=ansible | TASK [install : Import tasks to install cluster _raw_params=install.yaml] ********************************************************************************************************************
+2024-05-14 08:40:35,737 p=30324 u=lab-user n=ansible | included: /home/lab-user/ocp/ocp-ipi-install-prep-with-ansible/roles/install/tasks/install.yaml for localhost => (item={'name': 'gtwdl', 'baseDomain': 'dynamic.redhatworkshops.io', 'networking': {'clusterNetworkcidr': '172.16.0.0/16', 'machineNetworkcidr': '192.168.18.0/24', 'serviceNetworkcidr': '172.17.0.0/16'}, 'platform': {'apiVIP': '192.168.18.201', 'ingressVIP': '192.168.18.202'}, 'controlplane': {'replicas': 3, 'cpus': 8, 'ram': 16384, 'disksizeGB': 120}, 'compute': {'replicas': 3, 'cpus': 12, 'ram': 32768, 'disksizeGB': 120}})
+2024-05-14 08:40:35,750 p=30324 u=lab-user n=ansible | TASK [install : Show values for cluster gtwdl msg=['{{ current_cluster }}']] *****************************************************************************************************************
+2024-05-14 08:40:35,772 p=30324 u=lab-user n=ansible | ok: [localhost] => {
+    "msg": [
+        {
+            "baseDomain": "dynamic.redhatworkshops.io",
+            "compute": {
+                "cpus": 12,
+                "disksizeGB": 120,
+                "ram": 32768,
+                "replicas": 3
+            },
+            "controlplane": {
+                "cpus": 8,
+                "disksizeGB": 120,
+                "ram": 16384,
+                "replicas": 3
+            },
+            "name": "gtwdl",
+            "networking": {
+                "clusterNetworkcidr": "172.16.0.0/16",
+                "machineNetworkcidr": "192.168.18.0/24",
+                "serviceNetworkcidr": "172.17.0.0/16"
+            },
+            "platform": {
+                "apiVIP": "192.168.18.201",
+                "ingressVIP": "192.168.18.202"
+            }
+        }
+    ]
+}
+2024-05-14 08:40:35,783 p=30324 u=lab-user n=ansible | TASK [install : Create cluster base directory for gtwdl path={{ bastion_cluster_base_dir }}, state=directory, mode=0755] *********************************************************************
+2024-05-14 08:40:36,127 p=30324 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:40:36,138 p=30324 u=lab-user n=ansible | TASK [install : Create directory structure in /home/lab-user/ocp for gtwdl state=directory, path={{ item }}, mode=0755] **********************************************************************
+2024-05-14 08:40:36,366 p=30324 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/auth)
+2024-05-14 08:40:36,571 p=30324 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/install)
+2024-05-14 08:40:36,768 p=30324 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/backup)
+2024-05-14 08:40:36,781 p=30324 u=lab-user n=ansible | TASK [install : Generate ssh keys for gtwdl path={{ bastion_cluster_base_dir }}/auth/ssh, size=4096, type=rsa] *******************************************************************************
+2024-05-14 08:40:38,838 p=30324 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:40:38,850 p=30324 u=lab-user n=ansible | TASK [install : Deploy the openshift install configuration for gtwdl src=install-config.yaml.j2, dest={{ bastion_cluster_base_dir }}/{{ item }}/install-config.yaml, mode=0644] **************
+2024-05-14 08:40:39,268 p=30324 u=lab-user n=ansible | changed: [localhost] => (item=install)
+2024-05-14 08:40:39,653 p=30324 u=lab-user n=ansible | changed: [localhost] => (item=backup)
+2024-05-14 08:40:39,665 p=30324 u=lab-user n=ansible | TASK [install : Install cluster gtwdl chdir={{ bastion_cluster_base_dir }}/install, _raw_params=/usr/local/bin/openshift-install create cluster --log-level=debug] ***************************
+2024-05-14 08:40:40,044 p=30324 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:40:40,055 p=30324 u=lab-user n=ansible | TASK [install : Check install status jid={{ __installer_results['ansible_job_id'] }}] ********************************************************************************************************
+2024-05-14 08:40:44,094 p=30324 u=lab-user n=ansible |  [ERROR]: User interrupted execution
+
+2024-05-14 08:43:01,071 p=30842 u=lab-user n=ansible | PLAY [Prepare and install OpenShift cluster] *************************************************************************************************************************************************
+2024-05-14 08:43:01,087 p=30842 u=lab-user n=ansible | TASK [Gathering Facts ] **********************************************************************************************************************************************************************
+2024-05-14 08:43:02,019 p=30842 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:43:02,039 p=30842 u=lab-user n=ansible | TASK [prepare-os : Ensure the system is RHEL8 that=['ansible_facts[\'distribution\'] == "RedHat"', 'ansible_facts[\'distribution_major_version\'] == "8" or ansible_facts[\'distribution_major_version\'] == "9"'], fail_msg=The bastion host is not RHEL8 or RHEL9] ***
+2024-05-14 08:43:02,067 p=30842 u=lab-user n=ansible | ok: [localhost] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+2024-05-14 08:43:02,078 p=30842 u=lab-user n=ansible | TASK [prepare-os : Ensure required packages installed name={{ bastion_pkgs_install | default(omit) }}, state=installed] **********************************************************************
+2024-05-14 08:43:03,539 p=30842 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:43:03,548 p=30842 u=lab-user n=ansible | TASK [prepare-os : Download OpenShift client binary src={{ item['url'] }}, dest=/usr/local/bin, remote_src=True, creates=/usr/local/bin/{{ item['name'] }}] **********************************
+2024-05-14 08:43:03,643 p=30842 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'oc', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-client-linux.tar.gz'}) 
+2024-05-14 08:43:03,695 p=30842 u=lab-user n=ansible | skipping: [localhost] => (item={'name': 'openshift-install', 'url': 'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-install-linux.tar.gz'}) 
+2024-05-14 08:43:03,706 p=30842 u=lab-user n=ansible | TASK [prepare-os : Ensure Openshift bash completions are present creates=/etc/bash_completion.d/{{ item }}, _raw_params=/usr/local/bin/{{ item }} completion bash > /etc/bash_completion.d/{{ item }}] ***
+2024-05-14 08:43:04,046 p=30842 u=lab-user n=ansible | ok: [localhost] => (item=oc)
+2024-05-14 08:43:04,277 p=30842 u=lab-user n=ansible | ok: [localhost] => (item=openshift-install)
+2024-05-14 08:43:04,287 p=30842 u=lab-user n=ansible | TASK [prepare-os : Download vCenter root certificates src=https://{{ vsphere['vcenter'] }}/certs/download.zip, dest=/tmp, remote_src=True] ***************************************************
+2024-05-14 08:43:05,724 p=30842 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:43:05,734 p=30842 u=lab-user n=ansible | TASK [prepare-os : Add vCenter certificate to anchors src=/tmp/certs/lin/, dest=/etc/pki/ca-trust/source/anchors/, mode=0644, remote_src=True] ***********************************************
+2024-05-14 08:43:06,122 p=30842 u=lab-user n=ansible | ok: [localhost]
+2024-05-14 08:43:06,132 p=30842 u=lab-user n=ansible | TASK [prepare-os : Update catrust _raw_params=update-ca-trust extract] ***********************************************************************************************************************
+2024-05-14 08:43:07,168 p=30842 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:43:07,188 p=30842 u=lab-user n=ansible | TASK [install : Import tasks to install cluster _raw_params=install.yaml] ********************************************************************************************************************
+2024-05-14 08:43:07,234 p=30842 u=lab-user n=ansible | included: /home/lab-user/ocp/ocp-ipi-install-prep-with-ansible/roles/install/tasks/install.yaml for localhost => (item={'name': 'gtwdl', 'baseDomain': 'dynamic.redhatworkshops.io', 'networking': {'clusterNetworkcidr': '172.16.0.0/16', 'machineNetworkcidr': '192.168.18.0/24', 'serviceNetworkcidr': '172.17.0.0/16'}, 'platform': {'apiVIP': '192.168.18.201', 'ingressVIP': '192.168.18.202'}, 'controlplane': {'replicas': 3, 'cpus': 8, 'ram': 16384, 'disksizeGB': 120}, 'compute': {'replicas': 3, 'cpus': 12, 'ram': 32768, 'disksizeGB': 120}})
+2024-05-14 08:43:07,247 p=30842 u=lab-user n=ansible | TASK [install : Show values for cluster gtwdl msg=['{{ current_cluster }}']] *****************************************************************************************************************
+2024-05-14 08:43:07,273 p=30842 u=lab-user n=ansible | ok: [localhost] => {
+    "msg": [
+        {
+            "baseDomain": "dynamic.redhatworkshops.io",
+            "compute": {
+                "cpus": 12,
+                "disksizeGB": 120,
+                "ram": 32768,
+                "replicas": 3
+            },
+            "controlplane": {
+                "cpus": 8,
+                "disksizeGB": 120,
+                "ram": 16384,
+                "replicas": 3
+            },
+            "name": "gtwdl",
+            "networking": {
+                "clusterNetworkcidr": "172.16.0.0/16",
+                "machineNetworkcidr": "192.168.18.0/24",
+                "serviceNetworkcidr": "172.17.0.0/16"
+            },
+            "platform": {
+                "apiVIP": "192.168.18.201",
+                "ingressVIP": "192.168.18.202"
+            }
+        }
+    ]
+}
+2024-05-14 08:43:07,283 p=30842 u=lab-user n=ansible | TASK [install : Create cluster base directory for gtwdl path={{ bastion_cluster_base_dir }}, state=directory, mode=0755] *********************************************************************
+2024-05-14 08:43:07,644 p=30842 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:43:07,655 p=30842 u=lab-user n=ansible | TASK [install : Create directory structure in /home/lab-user/ocp for gtwdl state=directory, path={{ item }}, mode=0755] **********************************************************************
+2024-05-14 08:43:07,887 p=30842 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/auth)
+2024-05-14 08:43:08,085 p=30842 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/install)
+2024-05-14 08:43:08,276 p=30842 u=lab-user n=ansible | changed: [localhost] => (item=/home/lab-user/ocp/gtwdl/backup)
+2024-05-14 08:43:08,289 p=30842 u=lab-user n=ansible | TASK [install : Generate ssh keys for gtwdl path={{ bastion_cluster_base_dir }}/auth/ssh, size=4096, type=rsa] *******************************************************************************
+2024-05-14 08:43:12,690 p=30842 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:43:12,702 p=30842 u=lab-user n=ansible | TASK [install : Deploy the openshift install configuration for gtwdl src=install-config.yaml.j2, dest={{ bastion_cluster_base_dir }}/{{ item }}/install-config.yaml, mode=0644] **************
+2024-05-14 08:43:13,141 p=30842 u=lab-user n=ansible | changed: [localhost] => (item=install)
+2024-05-14 08:43:13,534 p=30842 u=lab-user n=ansible | changed: [localhost] => (item=backup)
+2024-05-14 08:43:13,546 p=30842 u=lab-user n=ansible | TASK [install : Install cluster gtwdl chdir={{ bastion_cluster_base_dir }}/install, _raw_params=/usr/local/bin/openshift-install create cluster --log-level=debug] ***************************
+2024-05-14 08:43:13,890 p=30842 u=lab-user n=ansible | changed: [localhost]
+2024-05-14 08:43:13,901 p=30842 u=lab-user n=ansible | TASK [install : Check install status jid={{ __installer_results['ansible_job_id'] }}] ********************************************************************************************************
