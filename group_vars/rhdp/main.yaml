@@ -15,8 +15,8 @@ vsphere:
 
 # Cluster list and specific params
 openshift_clusters:
-  - name: p488w
-    baseDomain: dynamic.opentlc.com
+  - name: gtwdl
+    baseDomain: dynamic.redhatworkshops.io
     networking:
       clusterNetworkcidr: 172.16.0.0/16
       machineNetworkcidr: 192.168.18.0/24
