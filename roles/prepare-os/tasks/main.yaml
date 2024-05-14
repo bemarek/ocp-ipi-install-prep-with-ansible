@@ -3,8 +3,8 @@
   ansible.builtin.assert:
     that:
       - ansible_facts['distribution'] == "RedHat"
-      - ansible_facts['distribution_major_version'] == "8"
-    fail_msg: "The bastion host is not RHEL8"
+      - ansible_facts['distribution_major_version'] == "8" or ansible_facts['distribution_major_version'] == "9"
+    fail_msg: "The bastion host is not RHEL8 or RHEL9"
 
 - name: Ensure required packages installed
   ansible.builtin.dnf:
