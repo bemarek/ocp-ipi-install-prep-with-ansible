@@ -1,0 +1,130 @@
+- name: Create namespace for the operator
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ operator.namespace }}"
+        labels:
+          openshift.io/cluster-monitoring: "true"
+  when: (operator.namespace is defined) and (create_operator_namespace if true)
+
+- name: Create Operator Group
+  kubernetes.core.k8s:
+    kubeconfig: "{{ k8s_config_file }}"
+    state: present
+    definition:
+      apiVersion: operators.coreos.com/v1
+      kind: OperatorGroup
+      metadata:
+        name: "{{ operator.group }}"
+        namespace: "{{ operator.namespace }}"
+      spec: {}
+  when: deploy_in_all_namespaces
+
+- name: Create Operator Group
+  kubernetes.core.k8s:
+    kubeconfig: "{{ k8s_config_file }}"
+    state: present
+    definition:
+      apiVersion: operators.coreos.com/v1
+      kind: OperatorGroup
+      metadata:
+        name: "{{ operator.group }}"
+        namespace: "{{ operator.namespace }}"
+      spec:
+        targetNamespaces:
+        - "{{ operator.namespace }}"
+  when: (deploy_in_all_namespaces is not defined) or (deploy_in_all_namespaces is false)
+
+- name: Subscribe to the Operator - don't deploy on infra nodes
+  kubernetes.core.k8s:
+    kubeconfig: "{{ k8s_config_file }}"
+    state: present
+    definition:
+      apiVersion: operators.coreos.com/v1alpha1
+      kind: Subscription
+      metadata:
+        name: "{{ operator.name }}"
+        namespace: "{{ operator.namespace }}"
+      spec:
+        channel: "{{ operator.channel }}"
+        installPlanApproval: "{{ operator.installPlanApproval }}"
+        name: "{{ operator.name }}"
+        source: redhat-operators
+        sourceNamespace: openshift-marketplace
+    wait_condition:
+      type: CatalogSourcesUnhealthy
+      reason: AllCatalogSourcesHealthy
+      status: "False"
+  when: (deploy_on_infra is not defined) or (deploy_on_infra is false)
+
+- name: Subscribe to the Operator - deploy on infra nodes
+  kubernetes.core.k8s:
+    kubeconfig: "{{ k8s_config_file }}"
+    state: present
+    definition:
+      apiVersion: operators.coreos.com/v1alpha1
+      kind: Subscription
+      metadata:
+        name: "{{ operator.name }}"
+        namespace: "{{ operator.namespace }}"
+      spec:
+        channel: "{{ operator.channel }}"
+        installPlanApproval: "{{ operator.installPlanApproval }}"
+        name: "{{ operator.name }}"
+        source: redhat-operators
+        sourceNamespace: openshift-marketplace
+        config:
+          tolerations:
+          - key: node-role.kubernetes.io/infra
+            operator : "Exists"
+            effect: NoSchedule
+          - key: node-role.kubernetes.io/infra
+            operator : "Exists"
+            effect: NoExecute
+          nodeSelector:
+            node-role.kubernetes.io/infra: ""
+    wait_condition:
+      type: CatalogSourcesUnhealthy
+      reason: AllCatalogSourcesHealthy
+      status: "False"
+  when: deploy_on_infra
+
+- name: Get the name of InstallPlan for the Operator
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ k8s_config_file }}"
+    api_version: operators.coreos.com/v1alpha1
+    kind: Subscription
+    name: "{{ operator.name }}"
+    namespace: "{{ operator.namespace }}"
+  register: sub
+  until: sub.resources[0].status.installplan.name is defined
+  retries: 30
+  delay: 10
+
+- name: Check if InstallPlan for the Operator is "Complete"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ k8s_config_file }}"
+    api_version: operators.coreos.com/v1alpha1
+    kind: InstallPlan
+    name: "{{ sub.resources[0].status.installplan.name }}"
+    namespace: "{{ operator.namespace }}"
+  register: ip
+  until: ip.resources[0].status.phase == "Complete"
+  retries: 30
+  delay: 10
+
+- name: Wait until all InstallPlan csvs are "Succeeded"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ k8s_config_file }}"
+    api_version: operators.coreos.com/v1alpha1
+    kind: ClusterServiceVersion
+    name: "{{ item }}"
+    namespace: "{{ operator.namespace }}"
+  register: csv
+  until: csv.resources[0].status.phase == "Succeeded"
+  retries: 30
+  delay: 10
+  loop: "{{ ip.resources[0].spec.clusterServiceVersionNames }}"

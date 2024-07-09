@@ -1,0 +1,15 @@
+---
+- name: Install the OpenShift GitOps Operator
+  ansible.builtin.include_role:
+    name: operator-deploy
+  vars:
+    operator:
+      name: openshift-gitops-operator
+      namespace: openshift-gitops-operator
+      group: openshift-gitops-operator
+      channel: latest
+      installPlanApproval: Automatic
+    deploy_on_infra: false
+    deploy_in_all_namespaces: true
+    create_operator_namespace: true
+

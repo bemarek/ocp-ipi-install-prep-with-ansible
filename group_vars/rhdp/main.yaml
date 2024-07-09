@@ -8,22 +8,22 @@ vsphere:
   datacenter: SDDC-Datacenter
   cluster: /SDDC-Datacenter/host/Cluster-1
   datastore: /SDDC-Datacenter/datastore/workload_share_dwPsq
-  network: segment-sandbox-gtwdl
-  folder: /SDDC-Datacenter/vm/Workloads/sandbox-gtwdl
+  network: segment-sandbox-qpk58
+  folder: /SDDC-Datacenter/vm/Workloads/sandbox-qpk58
   username: "{{ vsphere_username | default('changeme') }}"
   password: "{{ vsphere_password | default('changeme') }}"
 
 # Cluster list and specific params
 openshift_clusters:
-  - name: gtwdl
+  - name: qpk58
     baseDomain: dynamic.redhatworkshops.io
     networking:
       clusterNetworkcidr: 172.16.0.0/16
-      machineNetworkcidr: 192.168.18.0/24
+      machineNetworkcidr: 192.168.33.0/24
       serviceNetworkcidr: 172.17.0.0/16
     platform:
-      apiVIP: 192.168.18.201
-      ingressVIP: 192.168.18.202
+      apiVIP: 192.168.33.201
+      ingressVIP: 192.168.33.202
     controlplane:
       replicas: 3
       cpus: 8

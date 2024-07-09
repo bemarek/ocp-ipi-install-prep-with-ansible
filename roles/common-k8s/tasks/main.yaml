@@ -1,0 +1,12 @@
+---
+- name: Ensure pip is installed
+  ansible.builtin.dnf:
+    name: pip
+    state: present
+  become: yes
+
+- name: Ensure kubernetes python module is present
+  ansible.builtin.pip:
+    name: kubernetes
+    state: present
+

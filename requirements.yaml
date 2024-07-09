@@ -2,3 +2,5 @@
 collections:
   - name: community.crypto
     type: galaxy
+  - name: community.kubernetes
+    type: galaxy

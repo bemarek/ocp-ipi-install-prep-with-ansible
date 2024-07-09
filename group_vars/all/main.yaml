@@ -1,3 +1,4 @@
 ---
 base_dir: /home/lab-user/ocp
+k8s_config_file: "{{ base_dir }}/qpk58/install/auth/kubeconfig"
 #openshift_version: 4.14.25
