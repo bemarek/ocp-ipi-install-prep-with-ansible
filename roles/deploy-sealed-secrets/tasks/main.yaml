@@ -1,0 +1,32 @@
+- name: Download kustomize binary
+  ansible.builtin.unarchive:
+    src: "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/{{ kustomize_version }}/kustomize_{{ kustomize_version }}_linux_amd64.tar.gz"
+    dest: /usr/local/bin
+    remote_src: true
+    creates: "/usr/local/bin/kustomize"
+  environment:
+    http_proxy: "{{ httpProxy | default(none) }}"
+    https_proxy: "{{ httpsProxy | default(none) }}"
+  become: yes
+
+- name: Ensure kustomize bash completions are present
+  ansible.builtin.shell:
+    cmd: "/usr/local/bin/kustomize completion bash > /etc/bash_completion.d/kustomize"
+    creates: "/etc/bash_completion.d/kustomize"
+  become: yes
+
+- name: Create sealed-secrets namespace
+  kubernetes.core.k8s:
+    name: sealed-secrets
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: Create kustomization file from template
+  template:
+    src: kustomization.yaml.j2
+    dest: "{{ role_path }}/files/kustomization.yaml"
+
+- name: Deploy Sealed Secrets
+  kubernetes.core.k8s:
+    definition: "{{ lookup('kubernetes.core.kustomize', dir=role_path + '/files/', binary_path='/usr/local/bin/kustomize') }}"
