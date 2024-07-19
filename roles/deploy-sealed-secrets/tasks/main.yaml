@@ -30,3 +30,62 @@
 - name: Deploy Sealed Secrets
   kubernetes.core.k8s:
     definition: "{{ lookup('kubernetes.core.kustomize', dir=role_path + '/files/', binary_path='/usr/local/bin/kustomize') }}"
+
+- name: Create private key for self-signed certificate
+  community.crypto.openssl_privatekey:
+    path: "{{ role_path }}/files/custom-tls.key"
+    mode: "0600"
+    type: RSA
+    size: 4096
+  register: privatekey_result
+
+- name: Create certificate signing request (CSR) for self-signed certificate
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ role_path }}/files/custom-tls.key"
+    common_name: "sealed-secret"
+    organization_name: "sealed-secret"
+    subject: "CN=sealed-secret,O=sealed-secret"
+  register: csr
+    #when: privatekey_result.changed
+
+- name: Generate self-signed certificate
+  community.crypto.x509_certificate:
+    path: "{{ role_path }}/files/custom-tls.crt"
+    privatekey_path: "{{ role_path }}/files/custom-tls.key"
+    provider: selfsigned
+    csr_content: "{{ csr.csr }}"
+      #when: privatekey_result.changed
+
+- name: Create TLS secret in the specified namespace
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "customsecret"
+        namespace: "sealed-secrets"
+      type: kubernetes.io/tls
+      data:
+        tls.crt: "{{ lookup('file', role_path+'/files/custom-tls.crt') | b64encode }}"
+        tls.key: "{{ lookup('file', role_path+'/files/custom-tls.key') | b64encode }}"
+
+- name: Label the secret
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "customsecret"
+        namespace: "sealed-secrets"
+        labels:
+          sealedsecrets.bitnami.com/sealed-secrets-key: "active"
+
+- name: Delete sealed-secrets pods
+  kubernetes.core.k8s:
+    state: absent
+    namespace: "sealed-secrets"
+    kind: Pod
+    label_selectors:
+      - "app.kubernetes.io/name=sealed-secrets"

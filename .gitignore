@@ -1,2 +1,7 @@
+./ansible.log
 ./auth.yml
 **/credentials.yaml
+**/custom-tls.crt
+**/custom-tls.key
+**/*.swp
+
